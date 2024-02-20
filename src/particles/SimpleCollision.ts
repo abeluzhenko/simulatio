@@ -3,6 +3,7 @@ import { ItemId, Storage } from '../storage/Storage'
 import { World, ItemFactory } from '../simulation/common'
 import { Particle } from './common'
 import { Vector2, distance, rotate } from '../math/Vector2'
+import { Rect } from '../math/Rect'
 
 const MAX_SPEED = 4
 const MIN_SPEED = 1
@@ -16,6 +17,11 @@ export class SimpleCollision implements Particle {
   private radius: number
   private mass: number
   private color: string
+  private _bbox: Rect
+
+  get bbox(): Rect {
+    return this._bbox
+  }
 
   constructor(
     public id: ItemId,
@@ -32,6 +38,12 @@ export class SimpleCollision implements Particle {
     }
     this.radius = Math.max(MIN_RADIUS, Random.next() * MAX_RADIUS)
     this.mass = DENSITY * Math.PI * this.radius * this.radius
+    this._bbox = {
+      x: this.position.x - this.radius,
+      y: this.position.y - this.radius,
+      width: this.radius * 2,
+      height: this.radius * 2,
+    }
   }
 
   update() {
@@ -80,6 +92,9 @@ export class SimpleCollision implements Particle {
 
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
+
+    this._bbox.x = this.position.x - this.radius
+    this._bbox.y = this.position.y - this.radius
 
     const r = Math.floor((this.position.y / this.world.height) * 255)
     const b = Math.floor((this.position.x / this.world.width) * 255)
