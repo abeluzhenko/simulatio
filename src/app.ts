@@ -6,11 +6,16 @@ import { Simulation } from './simulation/Simulation'
 import { SimpleCollision } from './particles/SimpleCollision'
 import { Random } from './math/Random'
 import { Particle } from './particles/common'
+import { Polygons } from './particles/Polygons'
 
 const presets = {
   simpleCollision: {
     factory: SimpleCollision.create,
     count: 1000,
+  },
+  polygons: {
+    factory: Polygons.create,
+    count: 300,
   },
 }
 
@@ -54,10 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   appLoop.loop()
 
-  simulation.start(
-    presets.simpleCollision.count,
-    presets.simpleCollision.factory,
-  )
+  const preset: keyof typeof presets = 'polygons'
+  simulation.start(presets[preset].count, presets[preset].factory)
 
   document.addEventListener('onBeforeUnload', () => {
     resizeObserver.disconnect()

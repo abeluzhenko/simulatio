@@ -17,6 +17,7 @@ export class SimpleCollision implements Particle {
   private radius: number
   private mass: number
   private color: string
+
   private _bbox: Rect
 
   get bbox(): Rect {
@@ -59,7 +60,13 @@ export class SimpleCollision implements Particle {
       this.velocity.y = -this.velocity.y
     }
 
-    for (const other of this.storage) {
+    const intersecting = this.storage.intersecting({
+      x: nextPos.x,
+      y: nextPos.y,
+      width: this._bbox.width,
+      height: this._bbox.height,
+    })
+    for (const other of intersecting) {
       if (other === this) {
         continue
       }
@@ -111,7 +118,9 @@ export class SimpleCollision implements Particle {
     ctx.fill()
   }
 
-  destroy() {}
+  destroy() {
+    this.vertexes = []
+  }
 
   static create: ItemFactory<SimpleCollision> = ({ id, storage, world }) => {
     return new SimpleCollision(id, storage, world)
