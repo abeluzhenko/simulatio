@@ -1,11 +1,5 @@
+import { Rect } from '../math/Rect'
 import { Storage } from '../storage/Storage'
-
-type Rect = {
-  x: number
-  y: number
-  width: number
-  height: number
-}
 
 type RenderItem = {
   render(ctx: CanvasRenderingContext2D): void
