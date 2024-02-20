@@ -1,13 +1,14 @@
 import { Random } from '../math/Random'
 import { ItemId, Storage } from '../storage/Storage'
-import { World, ItemFactory } from './common'
+import { World, ItemFactory } from '../simulation/common'
+import { Particle } from './common'
 
 const MAX_SPEED = 4
 const MIN_SPEED = 1
 const MAX_RADIUS = 3
 const MIN_RADIUS = 1
 
-export class Particle {
+export class SimpleCollision implements Particle {
   private x: number
   private y: number
   private vx: number
@@ -17,7 +18,7 @@ export class Particle {
 
   constructor(
     public id: ItemId,
-    private storage: Storage<Particle>,
+    private storage: Storage<SimpleCollision>,
     private world: World,
   ) {
     this.x = Random.next() * world.width
@@ -56,9 +57,10 @@ export class Particle {
     this.x += this.vx
     this.y += this.vy
 
-    const r = Math.floor((this.x / this.world.width) * 255)
-    const g = Math.floor((this.y / this.world.height) * 255)
-    const b = 0
+    const r = Math.floor((this.y / this.world.height) * 255)
+    const b = Math.floor((this.x / this.world.width) * 255)
+    const g = 50
+
     this.color = `rgb(${r}, ${g}, ${b})`
   }
 
@@ -72,7 +74,7 @@ export class Particle {
 
   destroy() {}
 
-  static create: ItemFactory<Particle> = ({ id, storage, world }) => {
-    return new Particle(id, storage, world)
+  static create: ItemFactory<SimpleCollision> = ({ id, storage, world }) => {
+    return new SimpleCollision(id, storage, world)
   }
 }

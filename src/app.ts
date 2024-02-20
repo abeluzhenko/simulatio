@@ -3,8 +3,16 @@ import { Storage } from './storage/Storage'
 import { Metric } from './metric/Metric'
 import { Render } from './render/Render'
 import { Simulation } from './simulation/Simulation'
-import { Particle } from './simulation/Particle'
+import { SimpleCollision } from './particles/SimpleCollision'
 import { Random } from './math/Random'
+import { Particle } from './particles/common'
+
+const presets = {
+  simpleCollision: {
+    factory: SimpleCollision.create,
+    count: 1000,
+  },
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('canvas') as HTMLCanvasElement
@@ -46,7 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   appLoop.loop()
 
-  simulation.start(1000, Particle.create)
+  simulation.start(
+    presets.simpleCollision.count,
+    presets.simpleCollision.factory,
+  )
 
   document.addEventListener('onBeforeUnload', () => {
     resizeObserver.disconnect()
