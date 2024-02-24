@@ -13,6 +13,8 @@ export class Metric {
   private dataIndex = 0
   private data: Frame[] = new Array(BUFFER_SIZE)
 
+  public onBufferFull?: () => void
+
   addFrame(frame: Frame) {
     this.currentFrame.simulation += frame.simulation
     this.currentFrame.render += frame.render
@@ -27,9 +29,22 @@ export class Metric {
         total: this.currentFrame.total / FRAMES_IN_BUFFER,
       }
       if (this.dataIndex === BUFFER_SIZE) {
-        console.log(this.data)
+        this.onBufferFull?.()
+        this.dataIndex = 0
       }
-      this.dataIndex %= BUFFER_SIZE
     }
+  }
+
+  toJSON() {
+    return JSON.stringify(this.data, null, 2)
+  }
+
+  toCSV() {
+    return (
+      'simulation,render,total\n' +
+      this.data
+        .map((frame) => `${frame.simulation},${frame.render},${frame.total}`)
+        .join('\n')
+    )
   }
 }
