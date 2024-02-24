@@ -3,12 +3,13 @@ import { Storage } from '../storage/Storage'
 
 type RenderItem = {
   render(ctx: CanvasRenderingContext2D): void
+  bbox: Rect
 }
 
 type RenderConfig = {
   vpHeight: number
   vpWidth: number
-  bgColor: string
+  bgColor?: string
 }
 
 export class Render {
@@ -41,13 +42,15 @@ export class Render {
   }
 
   tick() {
-    this.ctx.fillStyle = this.config.bgColor
-    this.ctx.fillRect(
-      this.viewport.x,
-      this.viewport.y,
-      this.viewport.width,
-      this.viewport.height,
-    )
+    if (this.config.bgColor) {
+      this.ctx.fillStyle = this.config.bgColor
+      this.ctx.fillRect(
+        this.viewport.x,
+        this.viewport.y,
+        this.viewport.width,
+        this.viewport.height,
+      )
+    }
 
     for (const particle of this.storage) {
       particle.render(this.ctx)

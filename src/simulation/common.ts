@@ -5,6 +5,7 @@ export type Item = {
   readonly id: ItemId
   readonly bbox: Rect
   update(storage: Storage<Item>, world: World, timestamp?: number): void
+  afterUpdate?: () => void
   destroy(): void
 }
 
@@ -19,4 +20,5 @@ export type Seed = number
 export type World = {
   readonly width: number
   readonly height: number
+  readonly particleCount: number
 }

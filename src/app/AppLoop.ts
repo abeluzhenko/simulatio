@@ -5,6 +5,7 @@ import { Item } from '../simulation/common'
 
 export class AppLoop {
   private rafId: number
+  private lastTimestamp = performance.now()
 
   constructor(
     private render: Render,
@@ -16,14 +17,15 @@ export class AppLoop {
     cancelAnimationFrame(this.rafId)
   }
 
-  loop = () => {
+  loop = (timestamp: number) => {
+    const dt = timestamp - this.lastTimestamp
     let ts = performance.now()
 
     this.render.tick()
     const renderTime = performance.now() - ts
     ts = performance.now()
 
-    this.simulation.tick()
+    this.simulation.tick(dt)
     const simulationTime = performance.now() - ts
 
     this.metric.addFrame({
@@ -31,6 +33,8 @@ export class AppLoop {
       simulation: simulationTime,
       total: renderTime + simulationTime,
     })
+
+    this.lastTimestamp = timestamp
     this.rafId = requestAnimationFrame(this.loop)
   }
 }

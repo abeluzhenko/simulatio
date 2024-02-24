@@ -27,9 +27,12 @@ export class Simulation<I extends Item> {
     }
   }
 
-  tick() {
+  tick(dt: number) {
     for (const item of this.storage) {
-      item.update(this.storage, this.world)
+      item.update(this.storage, this.world, dt)
+    }
+    for (const item of this.storage) {
+      item.afterUpdate?.()
     }
   }
 }

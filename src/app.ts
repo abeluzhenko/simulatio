@@ -7,6 +7,7 @@ import { SimpleCollision } from './particles/SimpleCollision'
 import { Random } from './math/Random'
 import { Particle } from './particles/common'
 import { Polygons } from './particles/Polygons'
+import { ConveyLife } from './particles/ConveyLife'
 
 const presets = {
   simpleCollision: {
@@ -17,7 +18,13 @@ const presets = {
     factory: Polygons.create,
     count: 300,
   },
+  conveyLife: {
+    factory: ConveyLife.create,
+    count: 10_000,
+    bgColor: 'rgba(0, 0, 0, 0.1)',
+  },
 }
+const PRESET = presets.conveyLife
 
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('canvas') as HTMLCanvasElement
@@ -35,11 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const render = new Render(canvas, storage, {
     vpWidth: canvas.width,
     vpHeight: canvas.height,
-    bgColor: '#000000',
+    bgColor: PRESET.bgColor ?? '#000000',
   })
   const simulation = new Simulation(storage, {
     width: canvas.width,
     height: canvas.height,
+    particleCount: PRESET.count,
   })
   const metric = new Metric()
   const appLoop = new AppLoop(render, simulation, metric)
@@ -57,10 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   resizeObserver.observe(canvas)
 
-  appLoop.loop()
+  appLoop.loop(0)
 
-  const preset: keyof typeof presets = 'polygons'
-  simulation.start(presets[preset].count, presets[preset].factory)
+  simulation.start(PRESET.count, PRESET.factory)
 
   document.addEventListener('onBeforeUnload', () => {
     resizeObserver.disconnect()
