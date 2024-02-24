@@ -3,7 +3,8 @@
   "source": "src/index.html",
   "scripts": {
     "start": "parcel",
-    "build": "parcel build"
+    "build": "parcel build",
+    "test": "jest"
   },
   "version": "0.1",
   "description": "2D Particles Simulation",
@@ -11,9 +12,15 @@
   "author": "Anton Beluzhenko <anton@beluzhenko.me>",
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "7.24.0",
+    "@babel/preset-env": "7.24.0",
+    "@babel/preset-typescript": "7.23.3",
+    "@types/jest": "29.5.12",
     "@typescript-eslint/eslint-plugin": "7.0.1",
     "@typescript-eslint/parser": "7.0.1",
+    "babel-jest": "29.7.0",
     "eslint": "8.56.0",
+    "jest": "29.7.0",
     "parcel": "2.11.0",
     "prettier": "3.2.5",
     "typescript": "5.3.3"

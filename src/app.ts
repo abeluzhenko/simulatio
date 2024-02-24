@@ -9,6 +9,12 @@ import { Particle } from './particles/common'
 import { Polygons } from './particles/Polygons'
 import { ConveyLife } from './particles/ConveyLife'
 
+declare global {
+  interface Window {
+    saveMetric: () => void
+  }
+}
+
 const presets = {
   simpleCollision: {
     factory: SimpleCollision.create,
@@ -49,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     height: canvas.height,
     particleCount: PRESET.count,
   })
-  const metric = new Metric()
+  const metric = new Metric({ framesInBuffer: 60, bufferSize: 100 })
   const appLoop = new AppLoop(render, simulation, metric)
 
   const resizeObserver = new ResizeObserver(() => {
@@ -68,6 +74,18 @@ document.addEventListener('DOMContentLoaded', () => {
   appLoop.loop(0)
 
   simulation.start(PRESET.count, PRESET.factory)
+
+  window.saveMetric = () => {
+    const blob = new Blob([metric.toCSV()], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'metric.csv'
+    a.click()
+  }
+  metric.onBufferFull = () => {
+    console.info('Metric buffer is full')
+  }
 
   document.addEventListener('onBeforeUnload', () => {
     resizeObserver.disconnect()
