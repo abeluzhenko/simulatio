@@ -19,10 +19,12 @@ const presets = {
   simpleCollision: {
     factory: SimpleCollision.create,
     count: 1000,
+    bgColor: 'rgb(0, 0, 0)',
   },
   polygons: {
     factory: Polygons.create,
     count: 300,
+    bgColor: 'rgba(0, 0, 0, 0.1)',
   },
   conveyLife: {
     factory: ConveyLife.create,
@@ -30,7 +32,7 @@ const presets = {
     bgColor: 'rgba(0, 0, 0, 0.1)',
   },
 }
-const PRESET = presets.conveyLife
+const PRESET = presets.polygons
 
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('canvas') as HTMLCanvasElement

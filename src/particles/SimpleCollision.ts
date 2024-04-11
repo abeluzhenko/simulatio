@@ -118,9 +118,7 @@ export class SimpleCollision implements Particle {
     ctx.fill()
   }
 
-  destroy() {
-    this.vertexes = []
-  }
+  destroy() {}
 
   static create: ItemFactory<SimpleCollision> = ({ id, storage, world }) => {
     return new SimpleCollision(id, storage, world)
