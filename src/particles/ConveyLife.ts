@@ -3,7 +3,7 @@ import { Rect } from '../math/Rect'
 import { Vector2 } from '../math/Vector2'
 import { ItemFactory, World } from '../simulation/common'
 import { ItemId, Storage } from '../storage/Storage'
-import { Particle } from './common'
+import { Particle } from './Particle'
 
 const STEP_TIME_MS = 80
 

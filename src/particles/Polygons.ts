@@ -1,7 +1,7 @@
 import { Random } from '../math/Random'
 import { ItemId, Storage } from '../storage/Storage'
 import { World, ItemFactory } from '../simulation/common'
-import { Particle } from './common'
+import { Particle } from './Particle'
 import { Vector2, distance } from '../math/Vector2'
 import { Rect } from '../math/Rect'
 
@@ -12,7 +12,6 @@ const RANGE = 100
 export class Polygons implements Particle {
   private position: Vector2
   private velocity: Vector2
-  private color: string
   private range: number
 
   private _bbox: Rect
@@ -42,7 +41,6 @@ export class Polygons implements Particle {
       height: 1,
     }
     this.range = RANGE
-    this.color = '#000000'
   }
 
   update() {

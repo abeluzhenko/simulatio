@@ -1,5 +1,5 @@
-import { Rect, intersects } from '../math/Rect'
-import { Vector2, distance } from '../math/Vector2'
+import { Rect } from '../math/Rect'
+import { Vector2 } from '../math/Vector2'
 
 export type ItemId = number
 
@@ -7,51 +7,14 @@ type StorageItem = {
   bbox: Rect
 }
 
-export class Storage<Item extends StorageItem = StorageItem>
-  implements Iterable<Item>
-{
-  private data = new Map<ItemId, Item>()
+export interface Storage<Item extends StorageItem = StorageItem>
+  extends Iterable<Item> {
+  add(id: ItemId, item: Item): void
+  get(id: ItemId): Item | undefined
+  delete(id: ItemId): void
 
-  createId(seed: number): ItemId {
-    return seed
-  }
+  intersecting(rect: Rect): IterableIterator<Item>
+  nearest(point: Vector2): Item | null
 
-  add(id: ItemId, item: Item) {
-    this.data.set(id, item)
-  }
-
-  get(id: ItemId) {
-    return this.data.get(id)
-  }
-
-  delete(id: ItemId) {
-    this.data.delete(id)
-  }
-
-  *intersecting(rect: Rect): IterableIterator<Item> {
-    for (const item of this) {
-      if (intersects(rect, item.bbox)) {
-        yield item
-      }
-    }
-  }
-
-  nearest(point: Vector2): Item | null {
-    let minDist = Infinity
-    let nearest: Item | null = null
-
-    for (const item of this) {
-      const dist = distance(point, item.bbox)
-      if (dist < minDist) {
-        minDist = dist
-        nearest = item
-      }
-    }
-
-    return nearest
-  }
-
-  [Symbol.iterator]() {
-    return this.data.values()
-  }
+  [Symbol.iterator](): IterableIterator<Item>
 }

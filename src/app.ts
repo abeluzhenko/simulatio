@@ -1,11 +1,11 @@
 import { AppLoop } from './app/AppLoop'
-import { Storage } from './storage/Storage'
+import { SimpleStorage } from './storage/SimpleStorage'
 import { Metric } from './metric/Metric'
 import { Render } from './render/Render'
 import { Simulation } from './simulation/Simulation'
 import { SimpleCollision } from './particles/SimpleCollision'
 import { Random } from './math/Random'
-import { Particle } from './particles/common'
+import { Particle } from './particles/Particle'
 import { Polygons } from './particles/Polygons'
 import { ConveyLife } from './particles/ConveyLife'
 
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   Random.seed(0)
 
-  const storage = new Storage<Particle>()
+  const storage = new SimpleStorage<Particle>()
   const render = new Render(canvas, storage, {
     vpWidth: canvas.width,
     vpHeight: canvas.height,

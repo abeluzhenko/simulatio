@@ -1,7 +1,7 @@
 import { Random } from '../math/Random'
 import { ItemId, Storage } from '../storage/Storage'
 import { World, ItemFactory } from '../simulation/common'
-import { Particle } from './common'
+import { Particle } from './Particle'
 import { Vector2, distance, rotate } from '../math/Vector2'
 import { Rect } from '../math/Rect'
 
