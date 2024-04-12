@@ -16,11 +16,20 @@ export function intersects(a: Rect, b: Rect): boolean {
   )
 }
 
-export function contains(rect: Rect, point: Vector2): boolean {
+export function containsPoint(rect: Rect, point: Vector2): boolean {
   return (
     point.x >= rect.x &&
     point.x <= rect.x + rect.width &&
     point.y >= rect.y &&
     point.y <= rect.y + rect.height
+  )
+}
+
+export function containsRect(container: Rect, rect: Rect): boolean {
+  return (
+    rect.x >= container.x &&
+    rect.x + rect.width <= container.x + container.width &&
+    rect.y >= container.y &&
+    rect.y + rect.height <= container.y + container.height
   )
 }

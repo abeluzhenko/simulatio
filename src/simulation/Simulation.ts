@@ -1,4 +1,4 @@
-import { Storage } from '../storage/Storage'
+import { Storage, createId } from '../storage/Storage'
 import { Item, ItemFactory, World } from './common'
 
 export class Simulation<I extends Item> {
@@ -9,7 +9,7 @@ export class Simulation<I extends Item> {
 
   start(itemsCount: number, createItem: ItemFactory<I>) {
     for (let i = 0; i < itemsCount; i++) {
-      const id = this.storage.createId(i)
+      const id = createId(i)
       const item = createItem({
         id,
         world: this.world,
@@ -30,7 +30,10 @@ export class Simulation<I extends Item> {
   tick(dt: number) {
     for (const item of this.storage) {
       item.update(this.storage, this.world, dt)
+
+      this.storage.update(item.id, item.bbox)
     }
+
     for (const item of this.storage) {
       item.afterUpdate?.()
     }

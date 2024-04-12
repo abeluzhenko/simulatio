@@ -1,21 +1,11 @@
 import { Rect, intersects } from '../math/Rect'
 import { Vector2, distance } from '../math/Vector2'
-import { Storage } from './Storage'
-
-export type ItemId = number
-
-type StorageItem = {
-  bbox: Rect
-}
+import { Storage, ItemId, StorageItem } from './Storage'
 
 export class SimpleStorage<Item extends StorageItem = StorageItem>
   implements Storage<Item>
 {
   private data = new Map<ItemId, Item>()
-
-  createId(seed: number): ItemId {
-    return seed
-  }
 
   add(id: ItemId, item: Item) {
     this.data.set(id, item)
@@ -23,6 +13,17 @@ export class SimpleStorage<Item extends StorageItem = StorageItem>
 
   get(id: ItemId) {
     return this.data.get(id)
+  }
+
+  update(id: ItemId, bbox: Rect) {
+    const item = this.data.get(id)
+    if (!item) {
+      return
+    }
+    item.bbox.x = bbox.x
+    item.bbox.y = bbox.y
+    item.bbox.width = bbox.width
+    item.bbox.height = bbox.height
   }
 
   delete(id: ItemId) {
