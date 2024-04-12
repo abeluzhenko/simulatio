@@ -13,6 +13,7 @@ export class Polygons implements Particle {
   private position: Vector2
   private velocity: Vector2
   private range: number
+  private rangeBBox: Rect
 
   private _bbox: Rect
   private vertexes: (Vector2 & { distance: number })[] = []
@@ -41,6 +42,12 @@ export class Polygons implements Particle {
       height: 1,
     }
     this.range = RANGE
+    this.rangeBBox = {
+      x: this.position.x - this.range,
+      y: this.position.y - this.range,
+      width: this.range * 2,
+      height: this.range * 2,
+    }
   }
 
   update() {
@@ -57,7 +64,7 @@ export class Polygons implements Particle {
     }
 
     this.vertexes = []
-    for (const other of this.storage) {
+    for (const other of this.storage.intersecting(this.rangeBBox)) {
       if (other === this) {
         continue
       }
@@ -77,12 +84,18 @@ export class Polygons implements Particle {
 
     this._bbox.x = this.position.x
     this._bbox.y = this.position.y
+    this.rangeBBox.x = this.position.x - this.range
+    this.rangeBBox.y = this.position.y - this.range
   }
 
   render(ctx: CanvasRenderingContext2D) {
+    const r = Math.floor((this.position.y / this.world.height) * 255)
+    const b = Math.floor((this.position.x / this.world.width) * 255)
+    const g = 50
+
     for (const vertex of this.vertexes) {
       const alpha = 1 - vertex.distance / RANGE
-      ctx.strokeStyle = `rgba(255, 0, 255, ${alpha})`
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
       ctx.beginPath()
       ctx.moveTo(this.position.x, this.position.y)
       ctx.lineTo(vertex.x, vertex.y)
