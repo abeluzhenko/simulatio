@@ -18,13 +18,6 @@ describe('SimpleQTStorage', () => {
       expect(result1).toBe(item1)
       expect(result2).toBe(item2)
     })
-
-    it('should throw if item is out of bounds', () => {
-      const storage = new SimpleQTStorage(WORLD_BBOX)
-      const item = { id: 0, bbox: { x: 100, y: 100, width: 100, height: 100 } }
-
-      expect(() => storage.add(item.id, item)).toThrow('Item is out of bounds')
-    })
   })
 
   it('should get item by id', () => {

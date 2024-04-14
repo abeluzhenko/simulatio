@@ -26,7 +26,7 @@ export class Metric {
     private readonly config: { framesInBuffer: number; bufferSize: number },
   ) {}
 
-  addFrame(frame: Frame) {
+  addFrame(frame: Omit<Frame, 'id'>) {
     this.currentFrame.simulation += frame.simulation
     this.currentFrame.render += frame.render
     this.currentFrame.total += frame.total
