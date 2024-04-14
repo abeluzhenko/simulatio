@@ -5,7 +5,7 @@ import { Particle } from './Particle'
 import { Vector2, distance, rotate } from '../math/Vector2'
 import { Rect } from '../math/Rect'
 
-const MAX_SPEED = 4
+const MAX_SPEED = 3
 const MIN_SPEED = 1
 const MAX_RADIUS = 3
 const MIN_RADIUS = 1
@@ -17,6 +17,7 @@ export class SimpleCollision implements Particle {
   private radius: number
   private mass: number
   private color: string
+  private skipCollision = false
 
   private _bbox: Rect
 
@@ -60,42 +61,47 @@ export class SimpleCollision implements Particle {
       this.velocity.y = -this.velocity.y
     }
 
-    const intersecting = this.storage.intersecting({
-      x: nextPos.x,
-      y: nextPos.y,
-      width: this._bbox.width,
-      height: this._bbox.height,
-    })
-    for (const other of intersecting) {
-      if (other === this) {
-        continue
-      }
-
-      if (distance(nextPos, other.position) <= this.radius + other.radius) {
-        const m1 = this.mass
-        const m2 = other.mass
-        const mm = m1 + m2
-        const theta = -Math.atan2(
-          other.position.y - this.position.y,
-          other.position.x - this.position.x,
-        )
-        const v1 = rotate(this.velocity, theta)
-        const v2 = rotate(other.velocity, theta)
-        const v1f = {
-          x: (v1.x * (m1 - m2)) / mm + (v2.x * 2 * m2) / mm,
-          y: v1.y,
+    if (!this.skipCollision) {
+      const intersecting = this.storage.intersecting({
+        x: nextPos.x,
+        y: nextPos.y,
+        width: this._bbox.width,
+        height: this._bbox.height,
+      })
+      for (const other of intersecting) {
+        if (other === this) {
+          continue
         }
-        const u1 = rotate(v1f, -theta)
-        const v2f = {
-          x: (v2.x * (m2 - m1)) / mm + (v1.x * 2 * m1) / mm,
-          y: v2.y,
-        }
-        const u2 = rotate(v2f, -theta)
 
-        this.velocity = u1
-        other.velocity = u2
+        if (distance(nextPos, other.position) <= this.radius + other.radius) {
+          const m1 = this.mass
+          const m2 = other.mass
+          const mm = m1 + m2
+          const theta = -Math.atan2(
+            other.position.y - this.position.y,
+            other.position.x - this.position.x,
+          )
+          const v1 = rotate(this.velocity, theta)
+          const v2 = rotate(other.velocity, theta)
+          const v1f = {
+            x: (v1.x * (m1 - m2)) / mm + (v2.x * 2 * m2) / mm,
+            y: v1.y,
+          }
+          const u1 = rotate(v1f, -theta)
+          const v2f = {
+            x: (v2.x * (m2 - m1)) / mm + (v1.x * 2 * m1) / mm,
+            y: v2.y,
+          }
+          const u2 = rotate(v2f, -theta)
+
+          this.velocity = u1
+          other.velocity = u2
+
+          other.skipCollision = true
+        }
       }
     }
+    this.skipCollision = false
 
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
