@@ -10,6 +10,7 @@ type RenderConfig = {
   vpHeight: number
   vpWidth: number
   bgColor?: string
+  debug?: string
 }
 
 export class Render {
@@ -54,6 +55,10 @@ export class Render {
 
     for (const particle of this.storage) {
       particle.render(this.ctx)
+    }
+
+    if (this.config.debug === 'storage') {
+      this.storage.__debug?.(this.ctx)
     }
   }
 }

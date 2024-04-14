@@ -1,5 +1,5 @@
 import { AppLoop } from './app/AppLoop'
-import { SimpleStorage } from './storage/SimpleStorage'
+import { SimpleQTStorage } from './storage/SimpleQTStorage'
 import { Metric } from './metric/Metric'
 import { Render } from './render/Render'
 import { Simulation } from './simulation/Simulation'
@@ -18,12 +18,12 @@ declare global {
 const presets = {
   simpleCollision: {
     factory: SimpleCollision.create,
-    count: 2000,
+    count: 3000,
     bgColor: 'rgb(0, 0, 0)',
   },
   polygons: {
     factory: Polygons.create,
-    count: 1000,
+    count: 2000,
     bgColor: 'rgba(0, 0, 0, 0.1)',
   },
   conveyLife: {
@@ -32,7 +32,7 @@ const presets = {
     bgColor: 'rgba(0, 0, 0, 0.1)',
   },
 }
-const PRESET = presets.polygons
+const PRESET = presets.simpleCollision
 
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('canvas') as HTMLCanvasElement
@@ -46,11 +46,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   Random.seed(0)
 
-  const storage = new SimpleStorage<Particle>()
+  const urlQuery = new URLSearchParams(document.location.search)
+  const storage = new SimpleQTStorage<Particle>({
+    x: 0,
+    y: 0,
+    width: canvas.width,
+    height: canvas.height,
+  })
   const render = new Render(canvas, storage, {
     vpWidth: canvas.width,
     vpHeight: canvas.height,
     bgColor: PRESET.bgColor ?? '#000000',
+    debug: urlQuery.get('debug') ?? undefined,
   })
   const simulation = new Simulation(storage, {
     width: canvas.width,

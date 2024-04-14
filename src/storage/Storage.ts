@@ -18,6 +18,8 @@ export interface Storage<Item extends StorageItem = StorageItem>
   nearest(point: Vector2): Item | null
 
   [Symbol.iterator](): IterableIterator<Item>
+
+  __debug?: (ctx: CanvasRenderingContext2D) => void
 }
 
 export function createId(seed: number): ItemId {
