@@ -28,7 +28,13 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
   private items: Map<ItemId, Item> = new Map()
   private itemToNode: Map<Item, QuadNode<Item>> = new Map()
 
-  constructor(bbox: Rect) {
+  constructor(
+    bbox: Rect,
+    private config: { maxItemsPerNode: number; maxDepth: number } = {
+      maxItemsPerNode: 5,
+      maxDepth: 8,
+    },
+  ) {
     this.tree = { bbox, items: new Set(), children: [null, null, null, null] }
   }
 
@@ -94,13 +100,17 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
     }
   }
 
-  private insertItem(item: Item, node: QuadNode<Item>) {
+  private insertItem(item: Item, node: QuadNode<Item>, depth = 0) {
     const childIndex = this.getChildIndex(node.bbox, item.bbox)
     const childBbox = node.children[childIndex]
       ? node.children[childIndex].bbox
       : this.createChildNodeBbox(node.bbox, childIndex)
 
-    if (containsRect(childBbox, item.bbox)) {
+    if (
+      node.items.size >= this.config.maxItemsPerNode &&
+      depth < this.config.maxDepth &&
+      containsRect(childBbox, item.bbox)
+    ) {
       if (!node.children[childIndex]) {
         node.children[childIndex] = {
           bbox: childBbox,
@@ -110,7 +120,7 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
         }
       }
 
-      this.insertItem(item, node.children[childIndex])
+      this.insertItem(item, node.children[childIndex], depth + 1)
 
       return
     }
@@ -198,7 +208,7 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
 
   __debug(ctx: CanvasRenderingContext2D) {
     const stack: (QuadNode<Item> | null)[] = [this.tree]
-    const rects: Rect[] = []
+    const nodes: QuadNode<Item>[] = []
     const items: Rect[] = []
 
     while (stack.length) {
@@ -207,7 +217,7 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
         continue
       }
 
-      rects.push(node.bbox)
+      nodes.push(node)
 
       if (node.items.size) {
         for (const item of node.items) {
@@ -221,17 +231,17 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
     }
 
     ctx.strokeStyle = 'rgb(0, 255, 0)'
-    for (const rect of rects) {
-      ctx.beginPath()
+    ctx.fillStyle = 'rgb(0, 255, 0)'
+    ctx.font = '8px Arial'
+    for (const node of nodes) {
+      const rect = node.bbox
       ctx.strokeRect(rect.x, rect.y, rect.width, rect.height)
-      ctx.stroke()
+      ctx.fillText(`${node.items.size}`, rect.x + 6, rect.y + 10)
     }
 
     ctx.strokeStyle = 'rgb(255, 255, 0)'
     for (const item of items) {
-      ctx.beginPath()
       ctx.strokeRect(item.x, item.y, item.width, item.height)
-      ctx.stroke()
     }
   }
 }
