@@ -7,6 +7,7 @@ import { Rect } from '../math/Rect'
 
 const MAX_SPEED = 2
 const MIN_SPEED = 1
+const MAX_CONNECTIONS = Infinity
 const RANGE = 100
 
 export class Polygons implements Particle {
@@ -76,6 +77,9 @@ export class Polygons implements Particle {
           y: other.position.y,
           distance: d,
         })
+        if (this.vertexes.length >= MAX_CONNECTIONS) {
+          break
+        }
       }
     }
 
@@ -102,6 +106,10 @@ export class Polygons implements Particle {
       ctx.closePath()
       ctx.stroke()
     }
+
+    ctx.fillStyle = `rgb(255, 255, 255)`
+    ctx.arc(this.position.x, this.position.y, 2, 0, Math.PI * 2)
+    ctx.fill()
   }
 
   destroy() {

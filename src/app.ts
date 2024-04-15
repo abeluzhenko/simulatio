@@ -18,12 +18,12 @@ declare global {
 const presets = {
   simpleCollision: {
     factory: SimpleCollision.create,
-    count: 3000,
+    count: 5_000,
     bgColor: 'rgb(0, 0, 0)',
   },
   polygons: {
     factory: Polygons.create,
-    count: 2000,
+    count: 1000,
     bgColor: 'rgba(0, 0, 0, 0.1)',
   },
   conveyLife: {
