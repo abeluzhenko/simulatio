@@ -5,9 +5,9 @@ import { Particle } from './Particle'
 import { Vector2, distance, rotate } from '../math/Vector2'
 import { Rect } from '../math/Rect'
 
-const MAX_SPEED = 3
+const MAX_SPEED = 5
 const MIN_SPEED = 1
-const MAX_RADIUS = 3
+const MAX_RADIUS = 4
 const MIN_RADIUS = 1
 const DENSITY = 1
 

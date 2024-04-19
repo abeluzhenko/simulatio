@@ -1,6 +1,6 @@
 import { AppLoop } from './app/AppLoop'
 import { SimpleQTStorage } from './storage/SimpleQTStorage'
-import { Metric } from './metric/Metric'
+import { Metric, PERFORMANCE_FRAME, PERFORMANCE_START } from './metric/Metric'
 import { Render } from './render/Render'
 import { Simulation } from './simulation/Simulation'
 import { SimpleCollision } from './particles/SimpleCollision'
@@ -19,7 +19,7 @@ const presets = {
   simpleCollision: {
     factory: SimpleCollision.create,
     count: 5_000,
-    bgColor: 'rgb(0, 0, 0)',
+    bgColor: 'rgba(0, 0, 0, 0.1)',
   },
   polygons: {
     factory: Polygons.create,
@@ -101,4 +101,42 @@ document.addEventListener('DOMContentLoaded', () => {
     simulation.stop()
     appLoop.destroy()
   })
+
+  if (urlQuery.get('stats')) {
+    const statsCanvas = document.createElement('canvas')
+    statsCanvas.width = 200
+    statsCanvas.height = 100
+    statsCanvas.style.position = 'absolute'
+    statsCanvas.style.top = '0'
+    statsCanvas.style.left = '0'
+    statsCanvas.style.backgroundColor = 'rgba(0, 0, 0, 1)'
+    document.body.appendChild(statsCanvas)
+
+    const offscreenCanvas = statsCanvas.transferControlToOffscreen()
+    const statsWorker = new Worker(
+      new URL('./app/workers/PerfStats.ts', import.meta.url),
+      {
+        type: 'module',
+      },
+    )
+
+    statsWorker.postMessage(
+      {
+        type: PERFORMANCE_START,
+        data: {
+          canvas: offscreenCanvas,
+          width: statsCanvas.width,
+          height: statsCanvas.height,
+        },
+      },
+      [offscreenCanvas],
+    )
+
+    metric.onFrame = (frame) => {
+      statsWorker.postMessage({
+        type: PERFORMANCE_FRAME,
+        data: frame,
+      })
+    }
+  }
 })

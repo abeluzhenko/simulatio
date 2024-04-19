@@ -1,14 +1,16 @@
-type Frame = {
+import { List } from '../common/List'
+
+export type Frame = {
   id: number
   simulation: number
   render: number
   total: number
 }
 
-type List<Data> = {
-  next?: List<Data>
-  data: Data
-}
+// @todo: move somewhere else
+export const PERFORMANCE_FRAME = 'performance_frame'
+export const PERFORMANCE_START = 'performance_start'
+export const PERFORMANCE_STOP = 'performance_stop'
 
 export class Metric {
   private frameIndex = 0
@@ -21,6 +23,7 @@ export class Metric {
   private current = this.head
 
   public onBufferFull?: () => void
+  public onFrame?: (frame: Frame) => void
 
   constructor(
     private readonly config: { framesInBuffer: number; bufferSize: number },
@@ -57,6 +60,8 @@ export class Metric {
         this.head = this.head.next
       }
     }
+
+    this.onFrame?.(this.current.data)
   }
 
   *data(): IterableIterator<Frame> {
