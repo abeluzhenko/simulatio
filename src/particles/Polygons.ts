@@ -14,13 +14,13 @@ export class Polygons implements Particle {
   private position: Vector2
   private velocity: Vector2
   private range: number
-  private rangeBBox: Rect
+  private rangeRect: Rect
 
-  private _bbox: Rect
+  private _rect: Rect
   private vertexes: (Vector2 & { distance: number })[] = []
 
-  get bbox(): Rect {
-    return this._bbox
+  get rect(): Rect {
+    return this._rect
   }
 
   constructor(
@@ -36,14 +36,14 @@ export class Polygons implements Particle {
       x: Random.next() * MAX_SPEED - MIN_SPEED,
       y: Random.next() * MAX_SPEED - MIN_SPEED,
     }
-    this._bbox = {
+    this._rect = {
       x: this.position.x,
       y: this.position.y,
       width: 1,
       height: 1,
     }
     this.range = RANGE
-    this.rangeBBox = {
+    this.rangeRect = {
       x: this.position.x - this.range,
       y: this.position.y - this.range,
       width: this.range * 2,
@@ -65,7 +65,7 @@ export class Polygons implements Particle {
     }
 
     this.vertexes = []
-    for (const other of this.storage.intersecting(this.rangeBBox)) {
+    for (const other of this.storage.intersecting(this.rangeRect)) {
       if (other === this) {
         continue
       }
@@ -86,10 +86,10 @@ export class Polygons implements Particle {
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
 
-    this._bbox.x = this.position.x
-    this._bbox.y = this.position.y
-    this.rangeBBox.x = this.position.x - this.range
-    this.rangeBBox.y = this.position.y - this.range
+    this._rect.x = this.position.x
+    this._rect.y = this.position.y
+    this.rangeRect.x = this.position.x - this.range
+    this.rangeRect.y = this.position.y - this.range
   }
 
   render(ctx: CanvasRenderingContext2D) {

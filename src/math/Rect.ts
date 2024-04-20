@@ -33,3 +33,10 @@ export function containsRect(container: Rect, rect: Rect): boolean {
     rect.y + rect.height <= container.y + container.height
   )
 }
+
+export function copyRect(dest: Rect, source: Rect): void {
+  dest.x = source.x
+  dest.y = source.y
+  dest.width = source.width
+  dest.height = source.height
+}

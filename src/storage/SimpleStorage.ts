@@ -1,4 +1,4 @@
-import { Rect, intersects } from '../math/Rect'
+import { Rect, copyRect, intersects } from '../math/Rect'
 import { Vector2, distance } from '../math/Vector2'
 import { Storage, ItemId, StorageItem } from './Storage'
 
@@ -15,15 +15,12 @@ export class SimpleStorage<Item extends StorageItem = StorageItem>
     return this.data.get(id) ?? null
   }
 
-  update(id: ItemId, bbox: Rect) {
+  update(id: ItemId, rect: Rect) {
     const item = this.data.get(id)
     if (!item) {
       return
     }
-    item.bbox.x = bbox.x
-    item.bbox.y = bbox.y
-    item.bbox.width = bbox.width
-    item.bbox.height = bbox.height
+    copyRect(item.rect, rect)
   }
 
   delete(id: ItemId) {
@@ -32,7 +29,7 @@ export class SimpleStorage<Item extends StorageItem = StorageItem>
 
   *intersecting(rect: Rect): IterableIterator<Item> {
     for (const item of this) {
-      if (intersects(rect, item.bbox)) {
+      if (intersects(rect, item.rect)) {
         yield item
       }
     }
@@ -43,7 +40,7 @@ export class SimpleStorage<Item extends StorageItem = StorageItem>
     let nearest: Item | null = null
 
     for (const item of this) {
-      const dist = distance(point, item.bbox)
+      const dist = distance(point, item.rect)
       if (dist < minDist) {
         minDist = dist
         nearest = item

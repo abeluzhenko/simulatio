@@ -4,8 +4,8 @@ describe('RBushStorage', () => {
   describe('add', () => {
     it('should add items', () => {
       const storage = new RBushStorage()
-      const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
-      const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
+      const item1 = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
+      const item2 = { id: 1, rect: { x: 10, y: 10, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
       storage.add(item2.id, item2)
@@ -20,7 +20,7 @@ describe('RBushStorage', () => {
 
   it('should get item by id', () => {
     const storage = new RBushStorage()
-    const item = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
+    const item = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
 
     storage.add(item.id, item)
 
@@ -28,9 +28,9 @@ describe('RBushStorage', () => {
     expect(result).toBe(item)
   })
 
-  it('should update item bbox', () => {
+  it('should update item rect', () => {
     const storage = new RBushStorage()
-    const item = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
+    const item = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
 
     storage.add(item.id, item)
     storage.update(item.id, { x: 10, y: 10, width: 10, height: 10 })
@@ -38,13 +38,13 @@ describe('RBushStorage', () => {
     const result = storage.get(item.id)
     expect(result).toEqual({
       id: 0,
-      bbox: { x: 10, y: 10, width: 10, height: 10 },
+      rect: { x: 10, y: 10, width: 10, height: 10 },
     })
   })
 
   it('should delete item by id', () => {
     const storage = new RBushStorage()
-    const item = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
+    const item = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
 
     storage.add(item.id, item)
     storage.delete(item.id)
@@ -56,9 +56,9 @@ describe('RBushStorage', () => {
   describe('intersections', () => {
     it('should iterate over intersecting items', () => {
       const storage = new RBushStorage()
-      const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
-      const item2 = { id: 1, bbox: { x: 5, y: 5, width: 10, height: 10 } }
-      const item3 = { id: 2, bbox: { x: 11, y: 11, width: 10, height: 10 } }
+      const item1 = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
+      const item2 = { id: 1, rect: { x: 5, y: 5, width: 10, height: 10 } }
+      const item3 = { id: 2, rect: { x: 11, y: 11, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
       storage.add(item2.id, item2)
@@ -75,8 +75,8 @@ describe('RBushStorage', () => {
 
     it('should return items if there are 1px intersections', () => {
       const storage = new RBushStorage()
-      const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
-      const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
+      const item1 = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
+      const item2 = { id: 1, rect: { x: 10, y: 10, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
       storage.add(item2.id, item2)
@@ -89,8 +89,8 @@ describe('RBushStorage', () => {
 
     it('should return empty array if there are no intersections', () => {
       const storage = new RBushStorage()
-      const item1 = { id: 0, bbox: { x: 0, y: 0, width: 4, height: 4 } }
-      const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
+      const item1 = { id: 0, rect: { x: 0, y: 0, width: 4, height: 4 } }
+      const item2 = { id: 1, rect: { x: 10, y: 10, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
       storage.add(item2.id, item2)
@@ -113,8 +113,8 @@ describe('RBushStorage', () => {
   describe('nearest', () => {
     it('should return the nearest item', () => {
       const storage = new RBushStorage()
-      const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
-      const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
+      const item1 = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
+      const item2 = { id: 1, rect: { x: 10, y: 10, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
       storage.add(item1.id, item2)

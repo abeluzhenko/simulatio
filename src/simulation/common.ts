@@ -3,7 +3,7 @@ import { Storage, ItemId } from '../storage/Storage'
 
 export type Item = {
   readonly id: ItemId
-  readonly bbox: Rect
+  readonly rect: Rect
   update(storage: Storage<Item>, world: World, timestamp?: number): void
   afterUpdate?: () => void
   destroy(): void

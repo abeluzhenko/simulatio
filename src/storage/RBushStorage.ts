@@ -1,4 +1,4 @@
-import { Rect } from '../math/Rect'
+import { Rect, copyRect } from '../math/Rect'
 import { Vector2 } from '../math/Vector2'
 import { Storage, StorageItem } from './Storage'
 import RBush, { BBox } from 'rbush'
@@ -7,10 +7,10 @@ import knn from 'rbush-knn'
 class CustomRBush<Item extends StorageItem = StorageItem> extends RBush<Item> {
   toBBox(item: Item): BBox {
     return {
-      minX: item.bbox.x,
-      minY: item.bbox.y,
-      maxX: item.bbox.x + item.bbox.width,
-      maxY: item.bbox.y + item.bbox.height,
+      minX: item.rect.x,
+      minY: item.rect.y,
+      maxX: item.rect.x + item.rect.width,
+      maxY: item.rect.y + item.rect.height,
     }
   }
 }
@@ -44,7 +44,7 @@ export class RBushStorage<Item extends StorageItem = StorageItem>
     this.tree.remove(item)
   }
 
-  update(id: number, bbox: Rect): void {
+  update(id: number, rect: Rect): void {
     const item = this.items.get(id)
     if (!item) {
       return
@@ -52,10 +52,7 @@ export class RBushStorage<Item extends StorageItem = StorageItem>
 
     this.tree.remove(item)
 
-    item.bbox.x = bbox.x
-    item.bbox.y = bbox.y
-    item.bbox.width = bbox.width
-    item.bbox.height = bbox.height
+    copyRect(item.rect, rect)
 
     this.tree.insert(item)
   }

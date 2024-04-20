@@ -1,9 +1,15 @@
-import { Rect, containsPoint, containsRect, intersects } from '../math/Rect'
+import {
+  Rect,
+  containsPoint,
+  containsRect,
+  copyRect,
+  intersects,
+} from '../math/Rect'
 import { Vector2, distance } from '../math/Vector2'
 import { Storage, ItemId, StorageItem } from './Storage'
 
 type QuadNode<Item> = {
-  bbox: Rect
+  rect: Rect
   children: [
     topLeft: QuadNode<Item> | null,
     topRight: QuadNode<Item> | null,
@@ -29,13 +35,13 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
   private itemToNode: Map<Item, QuadNode<Item>> = new Map()
 
   constructor(
-    bbox: Rect,
+    rect: Rect,
     private config: { maxItemsPerNode: number; maxDepth: number } = {
       maxItemsPerNode: 5,
       maxDepth: 8,
     },
   ) {
-    this.tree = { bbox, items: new Set(), children: [null, null, null, null] }
+    this.tree = { rect, items: new Set(), children: [null, null, null, null] }
   }
 
   add(id: ItemId, item: Item) {
@@ -47,7 +53,7 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
     return this.items.get(id) ?? null
   }
 
-  update(id: ItemId, bbox: Rect) {
+  update(id: ItemId, rect: Rect) {
     const item = this.items.get(id)
     if (!item) {
       return
@@ -55,10 +61,7 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
 
     this.removeItem(item)
 
-    item.bbox.x = bbox.x
-    item.bbox.y = bbox.y
-    item.bbox.width = bbox.width
-    item.bbox.height = bbox.height
+    copyRect(item.rect, rect)
 
     this.insertItem(item, this.tree)
   }
@@ -73,9 +76,9 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
     this.removeItem(item)
   }
 
-  private getChildIndex(bbox: Rect, point: Vector2): ChildIndex {
-    const centerX = bbox.x + bbox.width / 2
-    const centerY = bbox.y + bbox.height / 2
+  private getChildIndex(rect: Rect, point: Vector2): ChildIndex {
+    const centerX = rect.x + rect.width / 2
+    const centerY = rect.y + rect.height / 2
 
     if (point.x < centerX) {
       return point.y < centerY ? ChildIndex.TopLeft : ChildIndex.BottomLeft
@@ -83,8 +86,8 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
     return point.y < centerY ? ChildIndex.TopRight : ChildIndex.BottomRight
   }
 
-  private createChildNodeBbox(bbox: Rect, childIndex: ChildIndex): Rect {
-    const { x, y, width, height } = bbox
+  private createChildNoderect(rect: Rect, childIndex: ChildIndex): Rect {
+    const { x, y, width, height } = rect
     const hw = width / 2
     const hh = height / 2
 
@@ -101,19 +104,19 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
   }
 
   private insertItem(item: Item, node: QuadNode<Item>, depth = 0) {
-    const childIndex = this.getChildIndex(node.bbox, item.bbox)
-    const childBbox = node.children[childIndex]
-      ? node.children[childIndex].bbox
-      : this.createChildNodeBbox(node.bbox, childIndex)
+    const childIndex = this.getChildIndex(node.rect, item.rect)
+    const childRect = node.children[childIndex]
+      ? node.children[childIndex].rect
+      : this.createChildNoderect(node.rect, childIndex)
 
     if (
       node.items.size >= this.config.maxItemsPerNode &&
       depth < this.config.maxDepth &&
-      containsRect(childBbox, item.bbox)
+      containsRect(childRect, item.rect)
     ) {
       if (!node.children[childIndex]) {
         node.children[childIndex] = {
-          bbox: childBbox,
+          rect: childRect,
           items: new Set(),
           children: [null, null, null, null],
           parent: node,
@@ -158,13 +161,13 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
 
     while (stack.length) {
       const node = stack.pop()
-      if (!node || !intersects(node.bbox, rect)) {
+      if (!node || !intersects(node.rect, rect)) {
         continue
       }
 
       if (node.items) {
         for (const item of node.items) {
-          if (intersects(item.bbox, rect)) {
+          if (intersects(item.rect, rect)) {
             yield item
           }
         }
@@ -182,13 +185,13 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
 
     while (stack.length) {
       const node = stack.pop()
-      if (!node || !containsPoint(node.bbox, point)) {
+      if (!node || !containsPoint(node.rect, point)) {
         continue
       }
 
       if (node.items) {
         for (const item of node.items) {
-          const dist = distance(point, item.bbox)
+          const dist = distance(point, item.rect)
           if (dist < minDist) {
             minDist = dist
             nearest = item
@@ -221,7 +224,7 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
 
       if (node.items.size) {
         for (const item of node.items) {
-          items.push(item.bbox)
+          items.push(item.rect)
         }
       }
 
@@ -234,7 +237,7 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
     ctx.fillStyle = 'rgb(0, 255, 0)'
     ctx.font = '8px Arial'
     for (const node of nodes) {
-      const rect = node.bbox
+      const rect = node.rect
       ctx.strokeRect(rect.x, rect.y, rect.width, rect.height)
       ctx.fillText(`${node.items.size}`, rect.x + 6, rect.y + 10)
     }

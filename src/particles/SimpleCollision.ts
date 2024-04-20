@@ -19,10 +19,10 @@ export class SimpleCollision implements Particle {
   private color: string
   private skipCollision = false
 
-  private _bbox: Rect
+  private _rect: Rect
 
-  get bbox(): Rect {
-    return this._bbox
+  get rect(): Rect {
+    return this._rect
   }
 
   constructor(
@@ -40,7 +40,7 @@ export class SimpleCollision implements Particle {
     }
     this.radius = Math.max(MIN_RADIUS, Random.next() * MAX_RADIUS)
     this.mass = DENSITY * Math.PI * this.radius * this.radius
-    this._bbox = {
+    this._rect = {
       x: this.position.x - this.radius,
       y: this.position.y - this.radius,
       width: this.radius * 2,
@@ -65,8 +65,8 @@ export class SimpleCollision implements Particle {
       const intersecting = this.storage.intersecting({
         x: nextPos.x,
         y: nextPos.y,
-        width: this._bbox.width,
-        height: this._bbox.height,
+        width: this._rect.width,
+        height: this._rect.height,
       })
       for (const other of intersecting) {
         if (other === this) {
@@ -106,8 +106,8 @@ export class SimpleCollision implements Particle {
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
 
-    this._bbox.x = this.position.x - this.radius
-    this._bbox.y = this.position.y - this.radius
+    this._rect.x = this.position.x - this.radius
+    this._rect.y = this.position.y - this.radius
 
     const r = Math.floor((this.position.y / this.world.height) * 255)
     const b = Math.floor((this.position.x / this.world.width) * 255)

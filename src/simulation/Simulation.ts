@@ -31,7 +31,7 @@ export class Simulation<I extends Item> {
     for (const item of this.storage) {
       item.update(this.storage, this.world, dt)
 
-      this.storage.update(item.id, item.bbox)
+      this.storage.update(item.id, item.rect)
     }
 
     for (const item of this.storage) {

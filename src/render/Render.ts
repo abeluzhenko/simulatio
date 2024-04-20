@@ -3,7 +3,7 @@ import { Storage } from '../storage/Storage'
 
 type RenderItem = {
   render(ctx: CanvasRenderingContext2D): void
-  bbox: Rect
+  rect: Rect
 }
 
 type RenderConfig = {

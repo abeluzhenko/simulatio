@@ -11,7 +11,7 @@ export class ConveyLife implements Particle {
   private position: Vector2
   private state: boolean
   private nextState: boolean
-  private _bbox: Rect
+  private _rect: Rect
   private timeFromLastStep = 0
 
   private static particleCount: number
@@ -19,8 +19,8 @@ export class ConveyLife implements Particle {
   private static size: number
   private static needSetup = true
 
-  get bbox(): Rect {
-    return this._bbox
+  get rect(): Rect {
+    return this._rect
   }
 
   constructor(
@@ -34,7 +34,7 @@ export class ConveyLife implements Particle {
       y: Math.floor(this.id / gridSize.x) * size,
     }
 
-    this._bbox = {
+    this._rect = {
       x: this.position.x,
       y: this.position.y,
       width: size,

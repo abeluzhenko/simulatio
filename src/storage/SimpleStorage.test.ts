@@ -3,8 +3,8 @@ import { SimpleStorage } from './SimpleStorage'
 describe('SimpleStorage', () => {
   it('should add items', () => {
     const storage = new SimpleStorage()
-    const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
-    const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
+    const item1 = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
+    const item2 = { id: 1, rect: { x: 10, y: 10, width: 10, height: 10 } }
 
     storage.add(item1.id, item1)
     storage.add(item2.id, item2)
@@ -18,7 +18,7 @@ describe('SimpleStorage', () => {
 
   it('should get item by id', () => {
     const storage = new SimpleStorage()
-    const item = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
+    const item = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
 
     storage.add(item.id, item)
 
@@ -28,7 +28,7 @@ describe('SimpleStorage', () => {
 
   it('should update item bbox', () => {
     const storage = new SimpleStorage()
-    const item = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
+    const item = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
 
     storage.add(item.id, item)
     storage.update(item.id, { x: 10, y: 10, width: 10, height: 10 })
@@ -36,13 +36,13 @@ describe('SimpleStorage', () => {
     const result = storage.get(item.id)
     expect(result).toEqual({
       id: 0,
-      bbox: { x: 10, y: 10, width: 10, height: 10 },
+      rect: { x: 10, y: 10, width: 10, height: 10 },
     })
   })
 
   it('should delete item by id', () => {
     const storage = new SimpleStorage()
-    const item = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
+    const item = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
 
     storage.add(item.id, item)
     storage.delete(item.id)
@@ -54,9 +54,9 @@ describe('SimpleStorage', () => {
   describe('intersections', () => {
     it('should iterate over intersecting items', () => {
       const storage = new SimpleStorage()
-      const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
-      const item2 = { id: 1, bbox: { x: 5, y: 5, width: 10, height: 10 } }
-      const item3 = { id: 2, bbox: { x: 11, y: 11, width: 10, height: 10 } }
+      const item1 = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
+      const item2 = { id: 1, rect: { x: 5, y: 5, width: 10, height: 10 } }
+      const item3 = { id: 2, rect: { x: 11, y: 11, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
       storage.add(item2.id, item2)
@@ -70,8 +70,8 @@ describe('SimpleStorage', () => {
 
     it('should return items if there are 1px intersections', () => {
       const storage = new SimpleStorage()
-      const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
-      const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
+      const item1 = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
+      const item2 = { id: 1, rect: { x: 10, y: 10, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
       storage.add(item2.id, item2)
@@ -84,8 +84,8 @@ describe('SimpleStorage', () => {
 
     it('should return empty array if there are no intersections', () => {
       const storage = new SimpleStorage()
-      const item1 = { id: 0, bbox: { x: 0, y: 0, width: 4, height: 4 } }
-      const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
+      const item1 = { id: 0, rect: { x: 0, y: 0, width: 4, height: 4 } }
+      const item2 = { id: 1, rect: { x: 10, y: 10, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
       storage.add(item2.id, item2)
@@ -108,8 +108,8 @@ describe('SimpleStorage', () => {
   describe('nearest', () => {
     it('should return the nearest item', () => {
       const storage = new SimpleStorage()
-      const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
-      const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
+      const item1 = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
+      const item2 = { id: 1, rect: { x: 10, y: 10, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
       storage.add(item1.id, item2)
