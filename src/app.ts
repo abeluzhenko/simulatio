@@ -11,6 +11,7 @@ import { Particle } from './particles/Particle'
 import { Polygons } from './particles/Polygons'
 import { ConveyLife } from './particles/ConveyLife'
 import { SimpleStorage } from './storage/SimpleStorage'
+import { Lines } from './particles/Lines'
 
 declare global {
   interface Window {
@@ -33,6 +34,11 @@ const presets = {
     factory: ConveyLife.create,
     count: 10_000,
     bgColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  lines: {
+    factory: Lines.create,
+    count: 1000,
+    bgColor: 'rgba(0, 0, 0, 1)',
   },
 }
 
@@ -59,6 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
     case 'conveyLife':
       preset = presets.conveyLife
       break
+
+    case 'lines':
+      preset = presets.lines
+      break
+
     default:
       preset = presets.simpleCollision
       break
