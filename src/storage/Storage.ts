@@ -10,7 +10,7 @@ export type StorageItem = {
 export interface Storage<Item extends StorageItem = StorageItem>
   extends Iterable<Item> {
   add(id: ItemId, item: Item): void
-  get(id: ItemId): Item | undefined
+  get(id: ItemId): Item | null
   delete(id: ItemId): void
   update(id: ItemId, bbox: Rect): void
 

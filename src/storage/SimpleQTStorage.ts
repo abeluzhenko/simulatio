@@ -44,7 +44,7 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
   }
 
   get(id: ItemId) {
-    return this.items.get(id)
+    return this.items.get(id) ?? null
   }
 
   update(id: ItemId, bbox: Rect) {

@@ -48,7 +48,7 @@ describe('SimpleStorage', () => {
     storage.delete(item.id)
 
     const result = storage.get(item.id)
-    expect(result).toBeUndefined()
+    expect(result).toBeNull()
   })
 
   describe('intersections', () => {
@@ -56,7 +56,7 @@ describe('SimpleStorage', () => {
       const storage = new SimpleStorage()
       const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
       const item2 = { id: 1, bbox: { x: 5, y: 5, width: 10, height: 10 } }
-      const item3 = { id: 2, bbox: { x: 10, y: 10, width: 10, height: 10 } }
+      const item3 = { id: 2, bbox: { x: 11, y: 11, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
       storage.add(item2.id, item2)
@@ -68,7 +68,7 @@ describe('SimpleStorage', () => {
       expect(result).toEqual([item1, item2])
     })
 
-    it('should return empty array if there are no items intersect', () => {
+    it('should return items if there are 1px intersections', () => {
       const storage = new SimpleStorage()
       const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
       const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
@@ -78,6 +78,20 @@ describe('SimpleStorage', () => {
 
       const result = Array.from(
         storage.intersecting({ x: 20, y: 20, width: 10, height: 10 }),
+      )
+      expect(result).toEqual([item2])
+    })
+
+    it('should return empty array if there are no intersections', () => {
+      const storage = new SimpleStorage()
+      const item1 = { id: 0, bbox: { x: 0, y: 0, width: 4, height: 4 } }
+      const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
+
+      storage.add(item1.id, item1)
+      storage.add(item2.id, item2)
+
+      const result = Array.from(
+        storage.intersecting({ x: 5, y: 5, width: 4, height: 4 }),
       )
       expect(result).toEqual([])
     })

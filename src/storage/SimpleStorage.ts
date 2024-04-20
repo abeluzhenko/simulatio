@@ -12,7 +12,7 @@ export class SimpleStorage<Item extends StorageItem = StorageItem>
   }
 
   get(id: ItemId) {
-    return this.data.get(id)
+    return this.data.get(id) ?? null
   }
 
   update(id: ItemId, bbox: Rect) {

@@ -1,11 +1,9 @@
-import { SimpleQTStorage } from './SimpleQTStorage'
+import { RBushStorage } from './RBushStorage'
 
-const WORLD_BBOX = { x: 0, y: 0, width: 100, height: 100 }
-
-describe('SimpleQTStorage', () => {
+describe('RBushStorage', () => {
   describe('add', () => {
     it('should add items', () => {
-      const storage = new SimpleQTStorage(WORLD_BBOX)
+      const storage = new RBushStorage()
       const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
       const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
 
@@ -21,7 +19,7 @@ describe('SimpleQTStorage', () => {
   })
 
   it('should get item by id', () => {
-    const storage = new SimpleQTStorage(WORLD_BBOX)
+    const storage = new RBushStorage()
     const item = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
 
     storage.add(item.id, item)
@@ -31,7 +29,7 @@ describe('SimpleQTStorage', () => {
   })
 
   it('should update item bbox', () => {
-    const storage = new SimpleQTStorage(WORLD_BBOX)
+    const storage = new RBushStorage()
     const item = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
 
     storage.add(item.id, item)
@@ -45,7 +43,7 @@ describe('SimpleQTStorage', () => {
   })
 
   it('should delete item by id', () => {
-    const storage = new SimpleQTStorage(WORLD_BBOX)
+    const storage = new RBushStorage()
     const item = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
 
     storage.add(item.id, item)
@@ -57,7 +55,7 @@ describe('SimpleQTStorage', () => {
 
   describe('intersections', () => {
     it('should iterate over intersecting items', () => {
-      const storage = new SimpleQTStorage(WORLD_BBOX)
+      const storage = new RBushStorage()
       const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
       const item2 = { id: 1, bbox: { x: 5, y: 5, width: 10, height: 10 } }
       const item3 = { id: 2, bbox: { x: 11, y: 11, width: 10, height: 10 } }
@@ -76,7 +74,7 @@ describe('SimpleQTStorage', () => {
     })
 
     it('should return items if there are 1px intersections', () => {
-      const storage = new SimpleQTStorage(WORLD_BBOX)
+      const storage = new RBushStorage()
       const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
       const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
 
@@ -90,7 +88,7 @@ describe('SimpleQTStorage', () => {
     })
 
     it('should return empty array if there are no intersections', () => {
-      const storage = new SimpleQTStorage(WORLD_BBOX)
+      const storage = new RBushStorage()
       const item1 = { id: 0, bbox: { x: 0, y: 0, width: 4, height: 4 } }
       const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
 
@@ -104,7 +102,7 @@ describe('SimpleQTStorage', () => {
     })
 
     it('should return empty array if there are no items', () => {
-      const storage = new SimpleQTStorage(WORLD_BBOX)
+      const storage = new RBushStorage()
       const result = Array.from(
         storage.intersecting({ x: 0, y: 0, width: 10, height: 10 }),
       )
@@ -114,7 +112,7 @@ describe('SimpleQTStorage', () => {
 
   describe('nearest', () => {
     it('should return the nearest item', () => {
-      const storage = new SimpleQTStorage(WORLD_BBOX)
+      const storage = new RBushStorage()
       const item1 = { id: 0, bbox: { x: 0, y: 0, width: 10, height: 10 } }
       const item2 = { id: 1, bbox: { x: 10, y: 10, width: 10, height: 10 } }
 
@@ -126,7 +124,7 @@ describe('SimpleQTStorage', () => {
     })
 
     it('should return null if there are no items', () => {
-      const storage = new SimpleQTStorage(WORLD_BBOX)
+      const storage = new RBushStorage()
       const result = storage.nearest({ x: 20, y: 20 })
       expect(result).toBeNull()
     })

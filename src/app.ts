@@ -1,5 +1,7 @@
 import { AppLoop } from './app/AppLoop'
+import { Storage } from './storage/Storage'
 import { SimpleQTStorage } from './storage/SimpleQTStorage'
+import { RBushStorage } from './storage/RBushStorage'
 import { Metric, PERFORMANCE_FRAME, PERFORMANCE_START } from './metric/Metric'
 import { Render } from './render/Render'
 import { Simulation } from './simulation/Simulation'
@@ -8,6 +10,7 @@ import { Random } from './math/Random'
 import { Particle } from './particles/Particle'
 import { Polygons } from './particles/Polygons'
 import { ConveyLife } from './particles/ConveyLife'
+import { SimpleStorage } from './storage/SimpleStorage'
 
 declare global {
   interface Window {
@@ -18,7 +21,7 @@ declare global {
 const presets = {
   simpleCollision: {
     factory: SimpleCollision.create,
-    count: 5_000,
+    count: 6_000,
     bgColor: 'rgba(0, 0, 0, 0.1)',
   },
   polygons: {
@@ -47,12 +50,24 @@ document.addEventListener('DOMContentLoaded', () => {
   Random.seed(0)
 
   const urlQuery = new URLSearchParams(document.location.search)
-  const storage = new SimpleQTStorage<Particle>({
-    x: 0,
-    y: 0,
-    width: canvas.width,
-    height: canvas.height,
-  })
+
+  let storage: Storage
+  switch (urlQuery.get('storage')) {
+    case 'simple-qt':
+      storage = new SimpleQTStorage<Particle>({
+        x: 0,
+        y: 0,
+        width: canvas.width,
+        height: canvas.height,
+      })
+      break
+    case 'rbush':
+      storage = new RBushStorage({ maxItemsPerNode: 9 })
+      break
+    default:
+      storage = new SimpleStorage()
+  }
+
   const render = new Render(canvas, storage, {
     vpWidth: canvas.width,
     vpHeight: canvas.height,
