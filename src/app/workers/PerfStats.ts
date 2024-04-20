@@ -20,10 +20,14 @@ let framesCount = 1
 let height = 100
 let width = 100
 
+let startTime: number
+let firstFrameTime: number
+
 onmessage = (message) => {
   const { type, data } = message.data
   switch (type) {
     case PERFORMANCE_START: {
+      startTime = performance.now()
       context = data.canvas.getContext('2d')!
       width = data.width
       height = data.height
@@ -35,6 +39,9 @@ onmessage = (message) => {
       break
     }
     case PERFORMANCE_FRAME: {
+      if (!firstFrameTime && data.total > 0) {
+        firstFrameTime = performance.now()
+      }
       addFrame(data)
       break
     }
@@ -84,4 +91,5 @@ function addFrame(data: Frame) {
 
   context.fillStyle = data.total <= FRAME_TIME ? '#00ff00' : '#ff0000'
   context.fillText(data.total.toFixed(2), 2, 10)
+  context.fillText((firstFrameTime - startTime).toFixed(0), width - 30, 10)
 }

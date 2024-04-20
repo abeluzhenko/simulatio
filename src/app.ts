@@ -21,7 +21,7 @@ declare global {
 const presets = {
   simpleCollision: {
     factory: SimpleCollision.create,
-    count: 6_000,
+    count: 6_400,
     bgColor: 'rgba(0, 0, 0, 0.1)',
   },
   polygons: {
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const urlQuery = new URLSearchParams(document.location.search)
 
-  let storage: Storage
+  let storage: Storage<Particle>
   switch (urlQuery.get('storage')) {
     case 'simple-qt':
       storage = new SimpleQTStorage<Particle>({
@@ -61,9 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
         height: canvas.height,
       })
       break
+
     case 'rbush':
-      storage = new RBushStorage({ maxItemsPerNode: 9 })
+      storage = new RBushStorage<Particle>({ maxItemsPerNode: 9 })
       break
+
     default:
       storage = new SimpleStorage()
   }
@@ -79,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     height: canvas.height,
     particleCount: PRESET.count,
   })
-  const metric = new Metric({ framesInBuffer: 60, bufferSize: 100 })
+  const metric = new Metric({ framesInBuffer: 20, bufferSize: 100 })
   const appLoop = new AppLoop(render, simulation, metric)
 
   const resizeObserver = new ResizeObserver(() => {
@@ -95,9 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   resizeObserver.observe(canvas)
 
-  appLoop.loop(0)
-
   simulation.start(PRESET.count, PRESET.factory)
+
+  appLoop.loop(0)
 
   window.saveMetric = () => {
     const blob = new Blob([metric.toCSV()], { type: 'text/csv' })

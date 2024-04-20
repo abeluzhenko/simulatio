@@ -4,30 +4,37 @@ import { Storage, StorageItem } from './Storage'
 import RBush, { BBox } from 'rbush'
 import knn from 'rbush-knn'
 
-class CustomRBush<Item extends StorageItem = StorageItem> extends RBush<Item> {
+type RBushStorageItem = StorageItem & { bbox: BBox }
+
+class CustomRBush<
+  Item extends RBushStorageItem = RBushStorageItem,
+> extends RBush<Item> {
   toBBox(item: Item): BBox {
-    return {
-      minX: item.rect.x,
-      minY: item.rect.y,
-      maxX: item.rect.x + item.rect.width,
-      maxY: item.rect.y + item.rect.height,
-    }
+    return item.bbox
   }
 }
 
 export class RBushStorage<Item extends StorageItem = StorageItem>
   implements Storage<Item>
 {
-  private tree: CustomRBush<Item>
-  private items = new Map<number, Item>()
+  private tree: CustomRBush<Item & { bbox: BBox }>
+  private items = new Map<number, Item & { bbox: BBox }>()
 
   constructor(config: { maxItemsPerNode: number } = { maxItemsPerNode: 9 }) {
     this.tree = new CustomRBush(config.maxItemsPerNode)
   }
 
   add(id: number, item: Item): void {
-    this.items.set(id, item)
-    this.tree.insert(item)
+    const bboxedItem = Object.assign(item, {
+      bbox: {
+        minX: item.rect.x,
+        minY: item.rect.y,
+        maxX: item.rect.x + item.rect.width,
+        maxY: item.rect.y + item.rect.height,
+      },
+    })
+    this.items.set(id, bboxedItem)
+    this.tree.insert(bboxedItem)
   }
 
   get(id: number): Item | null {
@@ -53,6 +60,10 @@ export class RBushStorage<Item extends StorageItem = StorageItem>
     this.tree.remove(item)
 
     copyRect(item.rect, rect)
+    item.bbox.minX = rect.x
+    item.bbox.minY = rect.y
+    item.bbox.maxX = rect.x + rect.width
+    item.bbox.maxY = rect.y + rect.height
 
     this.tree.insert(item)
   }
