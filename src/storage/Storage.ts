@@ -15,7 +15,7 @@ export interface Storage<Item extends StorageItem = StorageItem>
   update(id: ItemId, rect: Rect): void
 
   intersecting(rect: Rect): IterableIterator<Item>
-  nearest(point: Vector2): Item | null
+  nearest(point: Vector2, k: number): IterableIterator<Item>
 
   [Symbol.iterator](): IterableIterator<Item>
 

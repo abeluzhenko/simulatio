@@ -1,3 +1,4 @@
+import { PriorityQueue } from '../common/PriorityQueue'
 import {
   Rect,
   containsPoint,
@@ -86,7 +87,7 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
     return point.y < centerY ? ChildIndex.TopRight : ChildIndex.BottomRight
   }
 
-  private createChildNoderect(rect: Rect, childIndex: ChildIndex): Rect {
+  private createChildNodeRect(rect: Rect, childIndex: ChildIndex): Rect {
     const { x, y, width, height } = rect
     const hw = width / 2
     const hh = height / 2
@@ -106,8 +107,8 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
   private insertItem(item: Item, node: QuadNode<Item>, depth = 0) {
     const childIndex = this.getChildIndex(node.rect, item.rect)
     const childRect = node.children[childIndex]
-      ? node.children[childIndex].rect
-      : this.createChildNoderect(node.rect, childIndex)
+      ? node.children[childIndex]!.rect
+      : this.createChildNodeRect(node.rect, childIndex)
 
     if (
       node.items.size >= this.config.maxItemsPerNode &&
@@ -123,7 +124,7 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
         }
       }
 
-      this.insertItem(item, node.children[childIndex], depth + 1)
+      this.insertItem(item, node.children[childIndex]!, depth + 1)
 
       return
     }
@@ -177,9 +178,10 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
     }
   }
 
-  nearest(point: Vector2): Item | null {
-    let minDist = Infinity
-    let nearest: Item | null = null
+  *nearest(point: Vector2, k: number): IterableIterator<Item> {
+    const queue = new PriorityQueue<Item>(
+      (a, b) => distance(point, a.rect) - distance(point, b.rect),
+    )
 
     const stack: (QuadNode<Item> | null)[] = [this.tree]
 
@@ -191,18 +193,21 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
 
       if (node.items) {
         for (const item of node.items) {
-          const dist = distance(point, item.rect)
-          if (dist < minDist) {
-            minDist = dist
-            nearest = item
-          }
+          queue.push(item)
         }
       }
 
       stack.push(...node.children)
     }
 
-    return nearest
+    for (let i = 0; i < k; i++) {
+      const item = queue.pop()
+      if (!item) {
+        break
+      }
+
+      yield item
+    }
   }
 
   [Symbol.iterator]() {

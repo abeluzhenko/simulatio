@@ -79,8 +79,8 @@ export class RBushStorage<Item extends StorageItem = StorageItem>
       .values()
   }
 
-  nearest(point: Vector2): Item | null {
-    return knn(this.tree, point.x, point.y, 1)[0] ?? null
+  nearest(point: Vector2, k: number): IterableIterator<Item> {
+    return knn(this.tree, point.x, point.y, k).values()
   }
 
   __debug?: (ctx: CanvasRenderingContext2D) => void = (ctx) => {};

@@ -1,5 +1,6 @@
 import { Rect, copyRect, intersects } from '../math/Rect'
 import { Vector2, distance } from '../math/Vector2'
+import { PriorityQueue } from '../common/PriorityQueue'
 import { Storage, ItemId, StorageItem } from './Storage'
 
 export class SimpleStorage<Item extends StorageItem = StorageItem>
@@ -35,19 +36,23 @@ export class SimpleStorage<Item extends StorageItem = StorageItem>
     }
   }
 
-  nearest(point: Vector2): Item | null {
-    let minDist = Infinity
-    let nearest: Item | null = null
+  *nearest(point: Vector2, k: number): IterableIterator<Item> {
+    const queue = new PriorityQueue<Item>(
+      (a, b) => distance(point, a.rect) - distance(point, b.rect),
+    )
 
     for (const item of this) {
-      const dist = distance(point, item.rect)
-      if (dist < minDist) {
-        minDist = dist
-        nearest = item
-      }
+      queue.push(item)
     }
 
-    return nearest
+    for (let i = 0; i < k; i++) {
+      const item = queue.pop()
+      if (!item) {
+        break
+      }
+
+      yield item
+    }
   }
 
   [Symbol.iterator]() {

@@ -113,22 +113,24 @@ describe('SimpleQTStorage', () => {
   })
 
   describe('nearest', () => {
-    it('should return the nearest item', () => {
+    it('should return k nearest items', () => {
       const storage = new SimpleQTStorage(WORLD_BBOX)
       const item1 = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
       const item2 = { id: 1, rect: { x: 10, y: 10, width: 10, height: 10 } }
+      const item3 = { id: 2, rect: { x: 50, y: 50, width: 10, height: 10 } }
 
       storage.add(item1.id, item1)
-      storage.add(item1.id, item2)
+      storage.add(item2.id, item2)
+      storage.add(item3.id, item3)
 
-      const result = storage.nearest({ x: 20, y: 20 })
-      expect(result).toEqual(item2)
+      const result = Array.from(storage.nearest({ x: 20, y: 20 }, 3))
+      expect(result).toEqual([item2, item1, item3])
     })
 
     it('should return null if there are no items', () => {
       const storage = new SimpleQTStorage(WORLD_BBOX)
-      const result = storage.nearest({ x: 20, y: 20 })
-      expect(result).toBeNull()
+      const result = Array.from(storage.nearest({ x: 20, y: 20 }, 1))
+      expect(result).toEqual([])
     })
   })
 })
