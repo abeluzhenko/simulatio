@@ -35,7 +35,6 @@ const presets = {
     bgColor: 'rgba(0, 0, 0, 0.1)',
   },
 }
-const PRESET = presets.simpleCollision
 
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('canvas') as HTMLCanvasElement
@@ -50,6 +49,20 @@ document.addEventListener('DOMContentLoaded', () => {
   Random.seed(0)
 
   const urlQuery = new URLSearchParams(document.location.search)
+
+  let preset: (typeof presets)[keyof typeof presets]
+  switch (urlQuery.get('preset')) {
+    case 'polygons':
+      preset = presets.polygons
+      break
+
+    case 'conveyLife':
+      preset = presets.conveyLife
+      break
+    default:
+      preset = presets.simpleCollision
+      break
+  }
 
   let storage: Storage<Particle>
   switch (urlQuery.get('storage')) {
@@ -73,13 +86,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const render = new Render(canvas, storage, {
     vpWidth: canvas.width,
     vpHeight: canvas.height,
-    bgColor: PRESET.bgColor ?? '#000000',
+    bgColor: preset.bgColor ?? '#000000',
     debug: urlQuery.get('debug') ?? undefined,
   })
+
   const simulation = new Simulation(storage, {
     width: canvas.width,
     height: canvas.height,
-    particleCount: PRESET.count,
+    particleCount: preset.count,
   })
   const metric = new Metric({ framesInBuffer: 20, bufferSize: 100 })
   const appLoop = new AppLoop(render, simulation, metric)
@@ -97,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   resizeObserver.observe(canvas)
 
-  simulation.start(PRESET.count, PRESET.factory)
+  simulation.start(preset.count, preset.factory)
 
   appLoop.loop(0)
 
