@@ -4,5 +4,6 @@
     "lib": ["ES2022", "DOM"],
     "isolatedModules": true,
     "downlevelIteration": true
-  }
+  },
+  "include": ["./src/declarations.d.ts"]
 }
