@@ -17,3 +17,11 @@ export function rotate(v: Vector2, angle: number): Vector2 {
     y: v.x * sin + v.y * cos,
   }
 }
+
+export function normalize(v: Vector2): Vector2 {
+  const len = Math.sqrt(v.x * v.x + v.y * v.y)
+  return {
+    x: v.x / len,
+    y: v.y / len,
+  }
+}

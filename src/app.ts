@@ -12,6 +12,7 @@ import { Polygons } from './particles/Polygons'
 import { ConveyLife } from './particles/ConveyLife'
 import { SimpleStorage } from './storage/SimpleStorage'
 import { Lines } from './particles/Lines'
+import { Darwin } from './particles/Darwin'
 
 declare global {
   interface Window {
@@ -22,8 +23,13 @@ declare global {
 const presets = {
   simpleCollision: {
     factory: SimpleCollision.create,
-    count: 6_400,
-    bgColor: 'rgba(0, 0, 0, 0.1)',
+    count: 400,
+    bgColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  darwin: {
+    factory: Darwin.create,
+    count: 10_000,
+    bgColor: 'rgba(0, 0, 0, 0.05)',
   },
   polygons: {
     factory: Polygons.create,
@@ -62,12 +68,16 @@ document.addEventListener('DOMContentLoaded', () => {
       preset = presets.polygons
       break
 
-    case 'conveyLife':
+    case 'convey-life':
       preset = presets.conveyLife
       break
 
     case 'lines':
       preset = presets.lines
+      break
+
+    case 'darwin':
+      preset = presets.darwin
       break
 
     default:
@@ -78,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let storage: Storage<Particle>
   switch (urlQuery.get('storage')) {
     case 'simple-qt':
-      storage = new SimpleQTStorage<Particle>({
+      storage = new SimpleQTStorage({
         x: 0,
         y: 0,
         width: canvas.width,
@@ -87,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
       break
 
     case 'rbush':
-      storage = new RBushStorage<Particle>({ maxItemsPerNode: 9 })
+      storage = new RBushStorage({ maxItemsPerNode: 9 })
       break
 
     default:
