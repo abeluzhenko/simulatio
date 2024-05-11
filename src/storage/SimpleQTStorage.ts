@@ -1,12 +1,6 @@
 import { PriorityQueue } from '../common/PriorityQueue'
-import {
-  Rect,
-  containsPoint,
-  containsRect,
-  copyRect,
-  intersects,
-} from '../math/Rect'
-import { Vector2, distance } from '../math/Vector2'
+import { Rect, containsRect, copyRect, intersects } from '../math/Rect'
+import { Vector2 } from '../math/Vector2'
 import { Storage, ItemId, StorageItem } from './Storage'
 
 type QuadNode<Item> = {
@@ -26,6 +20,17 @@ enum ChildIndex {
   TopRight,
   BottomRight,
   BottomLeft,
+}
+
+function rectQuadDistance(point: Vector2, rect: Rect): number {
+  const dx = axisDistance(point.x, rect.x, rect.x + rect.width)
+  const dy = axisDistance(point.y, rect.y, rect.y + rect.height)
+
+  return dx * dx + dy * dy
+}
+
+function axisDistance(k: number, min: number, max: number) {
+  return k < min ? min - k : k <= max ? 0 : k - max
 }
 
 export class SimpleQTStorage<Item extends StorageItem = StorageItem>
@@ -149,7 +154,10 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
     if (
       node.parent &&
       node.items.size === 0 &&
-      node.children.every((c) => c === null)
+      !node.children[0] &&
+      !node.children[1] &&
+      !node.children[2] &&
+      !node.children[3]
     ) {
       const index = node.parent.children.indexOf(node)
       node.parent.children[index] = null
@@ -178,36 +186,48 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
     }
   }
 
-  *nearest(point: Vector2, k: number): IterableIterator<Item> {
-    const queue = new PriorityQueue<Item>(
-      (a, b) => distance(point, a.rect) - distance(point, b.rect),
-    )
+  nearest(point: Vector2, k: number): IterableIterator<Item> {
+    let node: QuadNode<Item> | null = this.tree
 
-    const stack: (QuadNode<Item> | null)[] = [this.tree]
+    const result: Item[] = []
+    const queue = new PriorityQueue<
+      (
+        | { isLeaf: true; payload: Item }
+        | { isLeaf: false; payload: QuadNode<Item> }
+      ) & { distance: number }
+    >((a, b) => a.distance - b.distance)
 
-    while (stack.length) {
-      const node = stack.pop()
-      if (!node || !containsPoint(node.rect, point)) {
-        continue
-      }
-
-      if (node.items) {
-        for (const item of node.items) {
-          queue.push(item)
+    while (node) {
+      for (const child of node.children) {
+        if (child) {
+          queue.push({
+            isLeaf: false,
+            distance: rectQuadDistance(point, child.rect),
+            payload: child,
+          })
         }
       }
 
-      stack.push(...node.children)
-    }
-
-    for (let i = 0; i < k; i++) {
-      const item = queue.pop()
-      if (!item) {
-        break
+      for (const item of node.items) {
+        queue.push({
+          isLeaf: true,
+          distance: rectQuadDistance(point, item.rect),
+          payload: item,
+        })
       }
 
-      yield item
+      while (queue.peek()?.isLeaf) {
+        result.push(queue.pop()!.payload as Item)
+        if (result.length === k) {
+          return result.values()
+        }
+      }
+
+      const nextNode = queue.pop()
+      node = nextNode ? (nextNode.payload as QuadNode<Item>) : null
     }
+
+    return result.values()
   }
 
   [Symbol.iterator]() {
