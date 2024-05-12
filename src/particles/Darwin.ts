@@ -10,13 +10,14 @@ const MIN_SPEED = 1
 const MAX_RADIUS = 4
 const MIN_RADIUS = 1
 const ABSORB_RATE = 0.3
-const MASS_THRESHOLD = 20
+const MASS_THRESHOLD = 40
 
 export class Darwin implements Particle {
   private position: Vector2
   private velocity: Vector2
   private radius: number
   private mass: number
+  private maxMass: number
   private color: string
   private killsCount = 0
   private _rect: Rect
@@ -39,6 +40,7 @@ export class Darwin implements Particle {
       y: Random.next() * MAX_SPEED - MIN_SPEED,
     }
     this.mass = Math.max(MIN_RADIUS, Random.next() * MAX_RADIUS)
+    this.maxMass = MASS_THRESHOLD * Random.next()
     this.radius = this.mass
     this._rect = {
       x: this.position.x - this.radius,
@@ -114,7 +116,7 @@ export class Darwin implements Particle {
       }
     }
 
-    if (this.mass > MASS_THRESHOLD) {
+    if (this.mass >= this.maxMass) {
       this.explode()
     }
 
@@ -162,14 +164,18 @@ export class Darwin implements Particle {
     this.die()
 
     for (let i = 0; i <= killsCount; i++) {
-      const particle = Darwin.DeadPool.pop()!
+      const particle = Darwin.DeadPool.pop()
+      if (!particle) {
+        break
+      }
 
       const angle = Random.next() * Math.PI * 2
       particle.velocity.x = Math.cos(angle) * MAX_SPEED
       particle.velocity.y = Math.sin(angle) * MAX_SPEED
-      particle.position.x = x + Math.cos(angle) * radius
-      particle.position.y = y + Math.sin(angle) * radius
+      particle.position.x = x + Math.cos(angle) * radius * Random.next()
+      particle.position.y = y + Math.sin(angle) * radius * Random.next()
       particle.mass = Math.max(MIN_RADIUS, Random.next() * MAX_RADIUS)
+      particle.maxMass = MASS_THRESHOLD * Random.next()
       particle.radius = particle.mass
 
       particle._rect = {
