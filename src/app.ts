@@ -13,6 +13,7 @@ import { ConveyLife } from './particles/ConveyLife'
 import { SimpleStorage } from './storage/SimpleStorage'
 import { Lines } from './particles/Lines'
 import { Darwin } from './particles/Darwin'
+import { ParticleLife } from './particles/ParticleLife'
 
 declare global {
   interface Window {
@@ -40,6 +41,11 @@ const presets = {
     factory: ConveyLife.create,
     count: 10_000,
     bgColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  particleLife: {
+    factory: ParticleLife.create,
+    count: 2000,
+    bgColor: 'rgba(0, 0, 0, 0.03)',
   },
   lines: {
     factory: Lines.create,
@@ -70,6 +76,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     case 'convey-life':
       preset = presets.conveyLife
+      break
+
+    case 'particle-life':
+      preset = presets.particleLife
       break
 
     case 'lines':

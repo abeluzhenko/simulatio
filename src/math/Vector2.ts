@@ -3,10 +3,14 @@ export type Vector2 = {
   y: number
 }
 
-export function distance(a: Vector2, b: Vector2): number {
+export function quadDistance(a: Vector2, b: Vector2): number {
   const dx = a.x - b.x
   const dy = a.y - b.y
-  return Math.sqrt(dx * dx + dy * dy)
+  return dx * dx + dy * dy
+}
+
+export function distance(a: Vector2, b: Vector2): number {
+  return Math.sqrt(quadDistance(a, b))
 }
 
 export function rotate(v: Vector2, angle: number): Vector2 {
