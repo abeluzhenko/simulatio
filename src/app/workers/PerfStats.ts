@@ -89,6 +89,10 @@ function addFrame(data: Frame) {
   context.lineTo(width, height - FRAME_TIME * ratio)
   context.stroke()
 
+  context.fillStyle = '#000000'
+  context.fillRect(0, 0, 34, 20)
+  context.fillRect(width - 34, 0, 34, 20)
+
   context.fillStyle = data.total <= FRAME_TIME ? '#00ff00' : '#ff0000'
   context.fillText(data.total.toFixed(2), 2, 10)
   context.fillText((firstFrameTime - startTime).toFixed(0), width - 30, 10)
