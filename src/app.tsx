@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { UI } from './ui/UI'
 import { AppLoop } from './app/AppLoop'
 import { Storage } from './storage/Storage'
-import { SimpleQTStorage } from './storage/SimpleQTStorage'
+import { MyQTStorage } from './storage/MyQTStorage'
 import { RBushStorage } from './storage/RBushStorage'
 import { Metric, PERFORMANCE_FRAME, PERFORMANCE_START } from './metric/Metric'
 import { Render } from './render/Render'
@@ -100,8 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let storage: Storage<Particle>
   switch (urlQuery.get('storage')) {
-    case 'simple-qt':
-      storage = new SimpleQTStorage({
+    case 'my-qt':
+      storage = new MyQTStorage({
         x: 0,
         y: 0,
         width: canvas.width,

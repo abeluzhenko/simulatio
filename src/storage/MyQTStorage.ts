@@ -33,7 +33,7 @@ function axisDistance(k: number, min: number, max: number) {
   return k < min ? min - k : k <= max ? 0 : k - max
 }
 
-export class SimpleQTStorage<Item extends StorageItem = StorageItem>
+export class MyQTStorage<Item extends StorageItem = StorageItem>
   implements Storage<Item>
 {
   private tree: QuadNode<Item>
