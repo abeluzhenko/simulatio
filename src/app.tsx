@@ -17,6 +17,7 @@ import { SimpleStorage } from './storage/SimpleStorage'
 import { Lines } from './particles/Lines'
 import { Darwin } from './particles/Darwin'
 import { ParticleLife } from './particles/ParticleLife'
+import { SimpleQTStorage } from './storage/SimpleQTStorage'
 
 declare global {
   interface Window {
@@ -102,6 +103,15 @@ document.addEventListener('DOMContentLoaded', () => {
   switch (urlQuery.get('storage')) {
     case 'my-qt':
       storage = new MyQTStorage({
+        x: 0,
+        y: 0,
+        width: canvas.width,
+        height: canvas.height,
+      })
+      break
+
+    case 'simple-qt':
+      storage = new SimpleQTStorage({
         x: 0,
         y: 0,
         width: canvas.width,

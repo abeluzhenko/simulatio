@@ -7,7 +7,7 @@ import { Rect } from '../math/Rect'
 
 const MAX_RADIUS = 6
 const MIN_RADIUS = 2
-const FORCE_RADIUS = 80
+const FORCE_RADIUS = 40
 const DAMPING = 0.32
 const GRAVITY_DAMPING = 0.5
 

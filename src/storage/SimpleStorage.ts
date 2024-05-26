@@ -1,5 +1,5 @@
 import { Rect, copyRect, intersects } from '../math/Rect'
-import { Vector2, distance } from '../math/Vector2'
+import { Vector2, quadDistance } from '../math/Vector2'
 import { PriorityQueue } from '../common/PriorityQueue'
 import { Storage, ItemId, StorageItem } from './Storage'
 
@@ -38,7 +38,7 @@ export class SimpleStorage<Item extends StorageItem = StorageItem>
 
   *nearest(point: Vector2, k: number): IterableIterator<Item> {
     const queue = new PriorityQueue<Item>(
-      (a, b) => distance(point, a.rect) - distance(point, b.rect),
+      (a, b) => quadDistance(point, a.rect) - quadDistance(point, b.rect),
     )
 
     for (const item of this) {
