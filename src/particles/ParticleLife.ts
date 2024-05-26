@@ -8,7 +8,8 @@ import { Rect } from '../math/Rect'
 const MAX_RADIUS = 6
 const MIN_RADIUS = 2
 const FORCE_RADIUS = 80
-const DAMPING = 0.4
+const DAMPING = 0.32
+const GRAVITY_DAMPING = 0.5
 
 const KINDS = ['red', 'green', 'blue']
 const RULES = {
@@ -33,6 +34,7 @@ export class ParticleLife implements Particle {
   private position: Vector2
   private velocity: Vector2
   private radius: number
+  private gravityCenter: Vector2
 
   kind: (typeof KINDS)[number]
 
@@ -69,6 +71,10 @@ export class ParticleLife implements Particle {
       y: this.position.y - FORCE_RADIUS,
       width: FORCE_RADIUS * 2,
       height: FORCE_RADIUS * 2,
+    }
+    this.gravityCenter = {
+      x: world.width / 2,
+      y: world.height / 2,
     }
   }
 
@@ -113,6 +119,10 @@ export class ParticleLife implements Particle {
         fy -= f * dy
       }
     }
+
+    const gd = distance(this.position, this.gravityCenter)
+    fx += ((this.gravityCenter.x - this.position.x) / gd) * GRAVITY_DAMPING
+    fy += ((this.gravityCenter.y - this.position.y) / gd) * GRAVITY_DAMPING
 
     this.velocity.x = (this.velocity.x + fx) * DAMPING
     this.velocity.y = (this.velocity.y + fy) * DAMPING
