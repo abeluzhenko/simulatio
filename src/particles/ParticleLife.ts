@@ -5,10 +5,10 @@ import { Particle } from './Particle'
 import { Vector2, distance } from '../math/Vector2'
 import { Rect } from '../math/Rect'
 
-const MAX_RADIUS = 4
-const MIN_RADIUS = 1
+const MAX_RADIUS = 6
+const MIN_RADIUS = 2
 const FORCE_RADIUS = 80
-const DAMPING = 0.5
+const DAMPING = 0.4
 
 const KINDS = ['red', 'green', 'blue']
 const RULES = {
@@ -33,7 +33,6 @@ export class ParticleLife implements Particle {
   private position: Vector2
   private velocity: Vector2
   private radius: number
-  private color: string
 
   kind: (typeof KINDS)[number]
 
@@ -75,16 +74,16 @@ export class ParticleLife implements Particle {
 
   update() {
     if (this.position.x < 0) {
-      this.position.x = this.world.width
+      this.position.x = this.world.width - 1
     }
     if (this.position.x > this.world.width) {
-      this.position.x = 0
+      this.position.x = 1
     }
     if (this.position.y < 0) {
-      this.position.y = this.world.height
+      this.position.y = this.world.height - 1
     }
     if (this.position.y > this.world.height) {
-      this.position.y = 0
+      this.position.y = 1
     }
 
     const intersecting = this.storage.intersecting(this._forceRect)
@@ -96,14 +95,22 @@ export class ParticleLife implements Particle {
       }
 
       const d = distance(this.position, other.position)
+      const dx = other.position.x - this.position.x
+      const dy = other.position.y - this.position.y
+      const minD = this.radius + other.radius
       const g = RULES[this.kind]?.[other.kind] ?? 0
-      if (g !== 0 && d <= FORCE_RADIUS) {
-        const dx = other.position.x - this.position.x
-        const dy = other.position.y - this.position.y
+
+      if (g !== 0 && d <= FORCE_RADIUS && d > minD) {
         const f = (g * 1) / d
 
         fx += f * dx
         fy += f * dy
+      }
+      if (d <= minD) {
+        const f = 1 / d
+
+        fx -= f * dx
+        fy -= f * dy
       }
     }
 
@@ -116,7 +123,9 @@ export class ParticleLife implements Particle {
     this._rect.y = this.position.y - this.radius
     this._forceRect.x = this.position.x - FORCE_RADIUS
     this._forceRect.y = this.position.y - FORCE_RADIUS
+  }
 
+  render(ctx: CanvasRenderingContext2D) {
     const sx = this.position.x / this.world.width
     const sy = this.position.y / this.world.height
     const r =
@@ -125,11 +134,7 @@ export class ParticleLife implements Particle {
       this.kind === 'blue' ? 100 + Math.floor(sy * 155) : Math.floor(sy * 100)
     const g = this.kind === 'green' ? 255 : 50
 
-    this.color = `rgb(${r}, ${g}, ${b})`
-  }
-
-  render(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = this.color
+    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`
     ctx.beginPath()
     ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
     ctx.closePath()
