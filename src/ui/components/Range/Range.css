@@ -1,0 +1,22 @@
+.Range {
+  --size: 16px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.Range input {
+  appearance: none;
+  background: var(--color-secondary);
+  height: 4px;
+}
+
+.Range input::-moz-slider-thumb,
+.Range input::-webkit-slider-thumb {
+  appearance: none;
+  background: var(--color-primary);
+  border-radius: 50%;
+  height: var(--size);
+  width: var(--size);
+  cursor: pointer;
+}

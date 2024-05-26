@@ -1,0 +1,53 @@
+.Switch {
+  --width: 40px;
+  --height: 24px;
+  --padding: 4px;
+
+  position: relative;
+  display: inline-block;
+  width: var(--width);
+  height: var(--height);
+  border-radius: var(--height);
+  border: 1px solid var(--color-secondary);
+}
+
+.Switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.Switch__slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.4s;
+  border-radius: var(--height);
+}
+
+.Switch__slider:before {
+  position: absolute;
+  content: '';
+  height: calc(var(--height) - var(--padding) * 2);
+  width: calc(var(--height) - var(--padding) * 2);
+  left: var(--padding);
+  bottom: var(--padding);
+  background-color: var(--color-primary);
+  transition: 0.4s;
+  border-radius: var(--height);
+}
+
+.Switch__slider:before {
+  border-radius: 50%;
+}
+
+.Switch input:checked + .Switch__slider {
+  background-color: var(--color-secondary);
+}
+
+.Switch input:checked + .Switch__slider:before {
+  transform: translateX(calc(var(--height) - var(--padding) * 2));
+}

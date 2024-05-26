@@ -1,0 +1,47 @@
+.Number {
+  display: flex;
+}
+
+.Number button {
+  width: 24px;
+  outline: none;
+  border-radius: 4px;
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  border: 0;
+  cursor: pointer;
+}
+
+.Number button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.Number button:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.Number button:focus {
+  outline: none;
+}
+
+.Number input {
+  outline: none;
+  padding: 4px;
+  color: var(--color-primary);
+  font-size: var(--size-medium);
+  border: 1px solid var(--color-secondary);
+  background: var(--color-tertiary);
+  text-align: center;
+}
+
+.Number input::-webkit-outer-spin-button,
+.Number input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.Number input[type='number'] {
+  -moz-appearance: textfield;
+}

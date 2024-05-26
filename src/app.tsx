@@ -1,3 +1,6 @@
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { UI } from './ui/UI'
 import { AppLoop } from './app/AppLoop'
 import { Storage } from './storage/Storage'
 import { SimpleQTStorage } from './storage/SimpleQTStorage'
@@ -202,3 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 })
+
+const ui = document.getElementById('ui')!
+const root = createRoot(ui)
+root.render(<UI />)

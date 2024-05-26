@@ -1,0 +1,10 @@
+.Select select {
+  border: 1px solid var(--color-secondary);
+  border-radius: 4px;
+  background: var(--color-tertiary);
+  outline: none;
+  padding: 4px;
+
+  color: var(--color-primary);
+  font-size: var(--size-medium);
+}
