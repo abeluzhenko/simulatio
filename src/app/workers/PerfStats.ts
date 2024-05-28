@@ -2,8 +2,8 @@ import { List } from '../../common/List'
 import {
   Frame,
   PERFORMANCE_FRAME,
+  PERFORMANCE_RESET,
   PERFORMANCE_START,
-  PERFORMANCE_STOP,
 } from '../../metric/Metric'
 
 const FRAMES_LIMIT = 100
@@ -33,7 +33,7 @@ onmessage = (message) => {
       height = data.height
       break
     }
-    case PERFORMANCE_STOP: {
+    case PERFORMANCE_RESET: {
       frames = { data: { id: 0, simulation: 0, render: 0, total: 0 } }
       currentFrame = frames
       break

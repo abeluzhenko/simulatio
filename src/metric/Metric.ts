@@ -10,7 +10,7 @@ export type Frame = {
 // @todo: move somewhere else
 export const PERFORMANCE_FRAME = 'performance_frame'
 export const PERFORMANCE_START = 'performance_start'
-export const PERFORMANCE_STOP = 'performance_stop'
+export const PERFORMANCE_RESET = 'performance_reset'
 
 export class Metric {
   private frameIndex = 0
@@ -28,6 +28,17 @@ export class Metric {
   constructor(
     private readonly config: { framesInBuffer: number; bufferSize: number },
   ) {}
+
+  reset() {
+    this.frameIndex = 0
+    this.currentFrame = { simulation: 0, render: 0, total: 0 }
+    this.dataIndex = 0
+    this.head = {
+      data: { id: 0, simulation: 0, render: 0, total: 0 },
+      next: undefined,
+    }
+    this.current = this.head
+  }
 
   addFrame(frame: Omit<Frame, 'id'>) {
     this.currentFrame.simulation += frame.simulation
@@ -57,7 +68,10 @@ export class Metric {
       }
 
       if (this.dataIndex >= this.config.bufferSize) {
-        this.head = this.head.next
+        if (!this.head.next) {
+          new Error('Impossible state')
+        }
+        this.head = this.head.next!
       }
     }
 
@@ -65,7 +79,7 @@ export class Metric {
   }
 
   *data(): IterableIterator<Frame> {
-    let current = this.head
+    let current: List<Frame> | undefined = this.head
     while (current) {
       yield current.data
       current = current.next

@@ -7,22 +7,24 @@ type Item = {
 }
 
 type Props = {
-  options: Item[]
+  options: Readonly<[Item, ...Item[]]>
   value: Item
   onChange: (value: Item) => void
 }
 
 export const Select: FC<Props> = ({ options, value, onChange }) => {
   const changeHandler = (e: ChangeEvent<HTMLSelectElement>) => {
-    const selected = options.find((option) => option.value === e.target.value)!
-    onChange(selected)
+    const selected = options.find((option) => option.id === e.target.value)
+    if (selected) {
+      onChange(selected)
+    }
   }
 
   return (
     <div className="Select">
-      <select onChange={changeHandler}>
+      <select onChange={changeHandler} value={value.id}>
         {options.map((option) => (
-          <option key={option.id} selected={option.id === value.id}>
+          <option key={option.id} value={option.id}>
             {option.value}
           </option>
         ))}
