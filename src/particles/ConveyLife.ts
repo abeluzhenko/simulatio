@@ -6,6 +6,7 @@ import { ItemId, Storage } from '../storage/Storage'
 import { Particle } from './Particle'
 
 const STEP_TIME_MS = 80
+const BORDER_SIZE = 1
 
 export class ConveyLife implements Particle {
   private position: Vector2
@@ -88,10 +89,10 @@ export class ConveyLife implements Particle {
 
     ctx.fillStyle = '#00ff00'
     ctx.fillRect(
-      this.position.x,
-      this.position.y,
-      ConveyLife.size,
-      ConveyLife.size,
+      this.position.x + BORDER_SIZE,
+      this.position.y + BORDER_SIZE,
+      ConveyLife.size - BORDER_SIZE * 2,
+      ConveyLife.size - BORDER_SIZE * 2,
     )
     ctx.fill()
   }
