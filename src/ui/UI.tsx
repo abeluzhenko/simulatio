@@ -16,6 +16,7 @@ export type GeneralConfig = {
   debug: string
   speed: number
   showStats: boolean
+  showConfig: boolean
 }
 
 type Props = {
@@ -29,7 +30,7 @@ type Props = {
 }
 
 export const UI: FC<Props> = ({ general }) => {
-  const [opened, setOpened] = useState(true)
+  const [opened, setOpened] = useState(general.default.showConfig)
   const [speed, setSpeed] = useState(general.default.speed)
   // @todo: this is just awful, refactor this
   const [preset, setPreset] = useState(
@@ -64,8 +65,9 @@ export const UI: FC<Props> = ({ general }) => {
       debug: debug.id,
       speed,
       showStats,
+      showConfig: opened,
     })
-  }, [speed, preset, storage, debug, showStats])
+  }, [speed, preset, storage, debug, showStats, opened])
 
   return (
     <div className={cx('UI__sidebar', { 'UI__sidebar--opened': opened })}>

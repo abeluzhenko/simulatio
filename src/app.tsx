@@ -97,6 +97,7 @@ const currentConfig = loadConfig({
   debug: 'none',
   speed: 100,
   showStats: true,
+  showConfig: true,
 })
 
 let cleanup: () => void | undefined
@@ -305,6 +306,11 @@ function handleOptionsChange(config: GeneralConfig) {
   if (config.showStats !== currentConfig.showStats) {
     statsWorker = togglePerfStats(config.showStats, metric, statsWorker)
     currentConfig.showStats = config.showStats
+    shouldSave = true
+  }
+
+  if (config.showConfig !== currentConfig.showConfig) {
+    currentConfig.showConfig = config.showConfig
     shouldSave = true
   }
 
