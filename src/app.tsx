@@ -66,7 +66,7 @@ const presets: {
   },
   darwin: {
     factory: Darwin.create,
-    count: 10_000,
+    count: 4_000,
     bgColor: 'rgba(0, 0, 0, 0.05)',
   },
   polygons: {
@@ -101,7 +101,10 @@ const currentConfig = loadConfig({
 
 let cleanup: () => void | undefined
 let statsWorker: Worker | undefined
+let simulation: Simulation<Particle>
 const metric = new Metric({ framesInBuffer: 20, bufferSize: 100 })
+
+const SIMULATION_FPS = 120
 
 document.addEventListener('DOMContentLoaded', () => {
   setup()
@@ -159,11 +162,18 @@ function setup(config?: {
     debug: config?.debug ?? undefined,
   })
 
-  const simulation = new Simulation(storage, {
-    width: canvas.width,
-    height: canvas.height,
-    particleCount: preset.count,
-  })
+  simulation = new Simulation(
+    storage,
+    {
+      width: canvas.width,
+      height: canvas.height,
+      particleCount: preset.count,
+    },
+    {
+      maxFPS: SIMULATION_FPS,
+      speed: currentConfig.speed / 100,
+    },
+  )
   const appLoop = new AppLoop(render, simulation, metric)
 
   const resizeObserver = new ResizeObserver(() => {
@@ -272,8 +282,7 @@ function handleOptionsChange(config: GeneralConfig) {
   if (
     config.preset !== currentConfig.preset ||
     config.storage !== currentConfig.storage ||
-    config.debug !== currentConfig.debug ||
-    config.speed !== currentConfig.speed
+    config.debug !== currentConfig.debug
   ) {
     cleanup?.()
     setup(config)
@@ -281,6 +290,14 @@ function handleOptionsChange(config: GeneralConfig) {
     currentConfig.preset = config.preset
     currentConfig.storage = config.storage
     currentConfig.debug = config.debug
+    shouldSave = true
+  }
+
+  if (config.speed !== currentConfig.speed) {
+    simulation.updateConfig({
+      speed: config.speed / 100,
+      maxFPS: SIMULATION_FPS,
+    })
     currentConfig.speed = config.speed
     shouldSave = true
   }
@@ -297,7 +314,6 @@ function handleOptionsChange(config: GeneralConfig) {
 }
 
 function saveConfig(config: GeneralConfig) {
-  console.log(config)
   localStorage.setItem('config', JSON.stringify(config))
 }
 

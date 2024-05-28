@@ -30,7 +30,7 @@ type Props = {
 
 export const UI: FC<Props> = ({ general }) => {
   const [opened, setOpened] = useState(true)
-  const [speed, setSpeed] = useState(100)
+  const [speed, setSpeed] = useState(general.default.speed)
   // @todo: this is just awful, refactor this
   const [preset, setPreset] = useState(
     general.presets.find((p) => p.id === general.default.preset)!,
