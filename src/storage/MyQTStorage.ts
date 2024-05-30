@@ -33,6 +33,15 @@ function axisDistance(k: number, min: number, max: number) {
   return k < min ? min - k : k <= max ? 0 : k - max
 }
 
+function isLeafNode<T>(node: QuadNode<T>): boolean {
+  return (
+    node.children[0] === null &&
+    node.children[1] === null &&
+    node.children[2] === null &&
+    node.children[3] === null
+  )
+}
+
 export class MyQTStorage<Item extends StorageItem = StorageItem>
   implements Storage<Item>
 {
@@ -151,14 +160,7 @@ export class MyQTStorage<Item extends StorageItem = StorageItem>
   }
 
   private cleanupUpwards(node: QuadNode<Item>) {
-    if (
-      node.parent &&
-      node.items.size === 0 &&
-      !node.children[0] &&
-      !node.children[1] &&
-      !node.children[2] &&
-      !node.children[3]
-    ) {
+    if (node.parent && node.items.size === 0 && isLeafNode(node)) {
       const index = node.parent.children.indexOf(node)
       node.parent.children[index] = null
       this.cleanupUpwards(node.parent)
