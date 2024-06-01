@@ -1,42 +1,20 @@
-import { Random } from '../math/Random'
-import { ItemId, Storage } from '../storage/Storage'
-import { World, ItemFactory } from '../simulation/common'
-import { Particle } from './Particle'
-import { Vector2, distance } from '../math/Vector2'
-import { Rect } from '../math/Rect'
-
-const MAX_RADIUS = 6
-const MIN_RADIUS = 2
-const FORCE_RADIUS = 40
-const DAMPING = 0.32
-const GRAVITY_DAMPING = 0.5
-
-const KINDS = ['red', 'green', 'blue']
-const RULES = {
-  red: {
-    red: -0.1,
-    green: -0.34,
-    blue: 1,
-  },
-  green: {
-    red: -0.17,
-    green: -0.34,
-    blue: -0.34,
-  },
-  blue: {
-    red: 1,
-    green: -0.2,
-    blue: 0.15,
-  },
-}
+import { Random } from '../../math/Random'
+import { ItemId, Storage } from '../../storage/Storage'
+import { World, ItemFactory } from '../../simulation/common'
+import { Particle } from '../Particle'
+import { Vector2, distance } from '../../math/Vector2'
+import { Rect } from '../../math/Rect'
+import { Config, defaultConfig } from './config'
 
 export class ParticleLife implements Particle {
+  private static config = defaultConfig
+
   private position: Vector2
   private velocity: Vector2
   private radius: number
   private gravityCenter: Vector2
 
-  kind: (typeof KINDS)[number]
+  kind: Config['kinds'][number]
 
   private _rect: Rect
   private _forceRect: Rect
@@ -50,7 +28,10 @@ export class ParticleLife implements Particle {
     private storage: Storage<ParticleLife>,
     private world: World,
   ) {
-    this.kind = KINDS[Math.floor(Random.next() * KINDS.length)]
+    this.kind =
+      ParticleLife.config.kinds[
+        Math.floor(Random.next() * ParticleLife.config.kinds.length)
+      ]
     this.position = {
       x: Random.next() * world.width,
       y: Random.next() * world.height,
@@ -59,7 +40,10 @@ export class ParticleLife implements Particle {
       x: 0,
       y: 0,
     }
-    this.radius = Math.max(MIN_RADIUS, Random.next() * MAX_RADIUS)
+    this.radius = Math.max(
+      ParticleLife.config.minRadius,
+      Random.next() * ParticleLife.config.maxRadius,
+    )
     this._rect = {
       x: this.position.x - this.radius,
       y: this.position.y - this.radius,
@@ -67,10 +51,10 @@ export class ParticleLife implements Particle {
       height: this.radius * 2,
     }
     this._forceRect = {
-      x: this.position.x - FORCE_RADIUS,
-      y: this.position.y - FORCE_RADIUS,
-      width: FORCE_RADIUS * 2,
-      height: FORCE_RADIUS * 2,
+      x: this.position.x - ParticleLife.config.forceRadius,
+      y: this.position.y - ParticleLife.config.forceRadius,
+      width: ParticleLife.config.forceRadius * 2,
+      height: ParticleLife.config.forceRadius * 2,
     }
     this.gravityCenter = {
       x: world.width / 2,
@@ -104,9 +88,9 @@ export class ParticleLife implements Particle {
       const dx = other.position.x - this.position.x
       const dy = other.position.y - this.position.y
       const minD = this.radius + other.radius
-      const g = RULES[this.kind]?.[other.kind] ?? 0
+      const g = ParticleLife.config.rules[this.kind]?.[other.kind] ?? 0
 
-      if (g !== 0 && d <= FORCE_RADIUS && d > minD) {
+      if (g !== 0 && d <= ParticleLife.config.forceRadius && d > minD) {
         const f = (g * 1) / d
 
         fx += f * dx
@@ -121,18 +105,22 @@ export class ParticleLife implements Particle {
     }
 
     const gd = distance(this.position, this.gravityCenter)
-    fx += ((this.gravityCenter.x - this.position.x) / gd) * GRAVITY_DAMPING
-    fy += ((this.gravityCenter.y - this.position.y) / gd) * GRAVITY_DAMPING
+    fx +=
+      ((this.gravityCenter.x - this.position.x) / gd) *
+      ParticleLife.config.gravityDamping
+    fy +=
+      ((this.gravityCenter.y - this.position.y) / gd) *
+      ParticleLife.config.gravityDamping
 
-    this.velocity.x = (this.velocity.x + fx) * DAMPING
-    this.velocity.y = (this.velocity.y + fy) * DAMPING
+    this.velocity.x = (this.velocity.x + fx) * ParticleLife.config.damping
+    this.velocity.y = (this.velocity.y + fy) * ParticleLife.config.damping
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
 
     this._rect.x = this.position.x - this.radius
     this._rect.y = this.position.y - this.radius
-    this._forceRect.x = this.position.x - FORCE_RADIUS
-    this._forceRect.y = this.position.y - FORCE_RADIUS
+    this._forceRect.x = this.position.x - ParticleLife.config.forceRadius
+    this._forceRect.y = this.position.y - ParticleLife.config.forceRadius
   }
 
   render(ctx: CanvasRenderingContext2D) {
@@ -155,5 +143,9 @@ export class ParticleLife implements Particle {
 
   static create: ItemFactory<ParticleLife> = ({ id, storage, world }) => {
     return new ParticleLife(id, storage, world)
+  }
+
+  static updateConfig(value: Config) {
+    ParticleLife.config = value
   }
 }

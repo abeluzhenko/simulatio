@@ -1,6 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { GeneralConfig, UI } from './ui/UI'
+import { GeneralConfig, SimulationFC, UI } from './ui/UI'
 import { AppLoop } from './app/AppLoop'
 import { Storage } from './storage/Storage'
 import { MyQTStorage } from './storage/MyQTStorage'
@@ -19,9 +19,13 @@ import { Particle } from './particles/Particle'
 import { Polygons } from './particles/Polygons'
 import { ConveyLife } from './particles/ConveyLife'
 import { SimpleStorage } from './storage/SimpleStorage'
-import { Lines } from './particles/Lines'
 import { Darwin } from './particles/Darwin'
-import { ParticleLife } from './particles/ParticleLife'
+import { ParticleLife } from './particles/ParticleLife/particle'
+import { UI as ParticleLifeUI } from './particles/ParticleLife/ui'
+import {
+  Config as ParticleLifeConfig,
+  defaultConfig as particleLifeDefaultConfig,
+} from './particles/ParticleLife/config'
 import { SimpleQTStorage } from './storage/SimpleQTStorage'
 import { ItemFactory } from './simulation/common'
 
@@ -37,7 +41,6 @@ const PRESETS = [
   { id: 'polygons', value: 'Polygons' },
   { id: 'conveyLife', value: 'Convey Life' },
   { id: 'particleLife', value: 'Particle Life' },
-  { id: 'lines', value: 'Lines' },
 ] as const
 
 const STORAGES = [
@@ -51,6 +54,43 @@ const DEBUG = [
   { id: 'none', value: 'None' },
   { id: 'storage', value: 'Storage' },
 ] as const
+
+const SIMULATIONS_UI: {
+  [Key in (typeof PRESETS)[number]['id']]: {
+    Simulation: SimulationFC<any>
+    onChange: (config: any) => void
+    defaultConfig: any
+  }
+} = {
+  simpleCollision: {
+    Simulation: () => '',
+    onChange: () => {},
+    defaultConfig: {},
+  },
+  darwin: {
+    Simulation: () => '',
+    onChange: () => {},
+    defaultConfig: {},
+  },
+  polygons: {
+    Simulation: () => '',
+    onChange: () => {},
+    defaultConfig: {},
+  },
+  conveyLife: {
+    Simulation: () => '',
+    onChange: () => {},
+    defaultConfig: {},
+  },
+  particleLife: {
+    Simulation: ParticleLifeUI,
+    onChange: (value: ParticleLifeConfig) => {
+      saveConfig('particleLife', value)
+      ParticleLife.updateConfig(value)
+    },
+    defaultConfig: loadConfig('particleLife', particleLifeDefaultConfig),
+  },
+}
 
 const presets: {
   [Key in (typeof PRESETS)[number]['id']]: {
@@ -84,18 +124,13 @@ const presets: {
     count: 2000,
     bgColor: 'rgba(0, 0, 0, 0.03)',
   },
-  lines: {
-    factory: Lines.create,
-    count: 1000,
-    bgColor: 'rgba(0, 0, 0, 1)',
-  },
 }
 
-const currentConfig = loadConfig({
+const currentConfig = loadConfig<GeneralConfig>('general', {
   preset: 'simpleCollision',
   storage: 'simple',
   debug: 'none',
-  speed: 100,
+  speed: 1,
   showStats: true,
   showConfig: true,
 })
@@ -172,7 +207,7 @@ function setup(config?: {
     },
     {
       maxFPS: SIMULATION_FPS,
-      speed: currentConfig.speed / 100,
+      speed: currentConfig.speed,
     },
   )
   const appLoop = new AppLoop(render, simulation, metric)
@@ -296,7 +331,7 @@ function handleOptionsChange(config: GeneralConfig) {
 
   if (config.speed !== currentConfig.speed) {
     simulation.updateConfig({
-      speed: config.speed / 100,
+      speed: config.speed,
       maxFPS: SIMULATION_FPS,
     })
     currentConfig.speed = config.speed
@@ -315,16 +350,19 @@ function handleOptionsChange(config: GeneralConfig) {
   }
 
   if (shouldSave) {
-    saveConfig(currentConfig)
+    saveConfig('general', currentConfig)
   }
 }
 
-function saveConfig(config: GeneralConfig) {
-  localStorage.setItem('config', JSON.stringify(config))
+function saveConfig<T>(key: 'general' | keyof typeof presets, config: T) {
+  localStorage.setItem(key, JSON.stringify(config))
 }
 
-function loadConfig(defaultValue: GeneralConfig): GeneralConfig {
-  const storageConfig = localStorage.getItem('config')
+function loadConfig<T>(
+  key: 'general' | keyof typeof presets,
+  defaultValue: T,
+): T {
+  const storageConfig = localStorage.getItem(key)
   if (!storageConfig) {
     return defaultValue
   }
@@ -343,5 +381,6 @@ root.render(
       debug: DEBUG,
       default: currentConfig,
     }}
+    simulation={SIMULATIONS_UI}
   />,
 )
