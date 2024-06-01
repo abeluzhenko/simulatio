@@ -3,6 +3,7 @@ import './UI.css'
 import { Select } from './components/Select/Select'
 import { Switch } from './components/Switch/Switch'
 import { Range } from './components/Range/Range'
+import { mapRange } from '../math/common'
 import cx from 'classnames'
 
 type Item = {
@@ -19,17 +20,30 @@ export type GeneralConfig = {
   showConfig: boolean
 }
 
+export type SimulationFC<T = unknown> = FC<{
+  defaultConfig: T
+  onChange: (value: T) => void
+}>
+
 type Props = {
   general: {
     presets: Readonly<[Item, ...Item[]]>
     storages: Readonly<[Item, ...Item[]]>
     debug: Readonly<[Item, ...Item[]]>
-    onChange: (general: GeneralConfig) => void
     default: GeneralConfig
+    onChange: (general: GeneralConfig) => void
   }
+  simulation: Record<
+    string,
+    {
+      Simulation: SimulationFC
+      defaultConfig: unknown
+      onChange: (value: unknown) => void
+    }
+  >
 }
 
-export const UI: FC<Props> = ({ general }) => {
+export const UI: FC<Props> = ({ general, simulation }) => {
   const [opened, setOpened] = useState(general.default.showConfig)
   const [speed, setSpeed] = useState(general.default.speed)
   // @todo: this is just awful, refactor this
@@ -58,6 +72,12 @@ export const UI: FC<Props> = ({ general }) => {
     [setStorage],
   )
 
+  const {
+    Simulation,
+    defaultConfig: simulationDefaultConfig,
+    onChange: onSimulationConfigChange,
+  } = simulation[preset.id]
+
   useEffect(() => {
     general.onChange({
       preset: preset.id,
@@ -79,7 +99,13 @@ export const UI: FC<Props> = ({ general }) => {
       <div className="UI__group">
         <div className="UI__option">
           <span className="Option__title">Speed</span>
-          <Range min={0} max={100} value={speed} onChange={setSpeed} />
+          <Range
+            min={0}
+            max={100}
+            step={1}
+            value={speed * 100}
+            onChange={(value) => setSpeed(mapRange(value, 0, 100, 0, 1))}
+          />
         </div>
         <div className="UI__option">
           <span className="Option__title">Preset</span>
@@ -106,6 +132,10 @@ export const UI: FC<Props> = ({ general }) => {
           <Switch value={showStats} onChange={setShowStats} />
         </div>
       </div>
+      <Simulation
+        defaultConfig={simulationDefaultConfig}
+        onChange={onSimulationConfigChange}
+      />
     </div>
   )
 }
