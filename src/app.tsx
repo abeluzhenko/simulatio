@@ -80,8 +80,7 @@ const SIMULATIONS_UI = Object.entries(presets).reduce((acc, [key, value]) => {
     Simulation: value.ui,
     onChange: (config: { count: number }) => {
       if (value.config.count !== config.count) {
-        cleanup?.()
-        setup(currentConfig)
+        simulation.setPopulation(config.count)
       }
 
       saveConfig(key, config)
@@ -173,6 +172,7 @@ function setup(config: {
     {
       maxFPS: SIMULATION_FPS,
       speed: currentConfig.speed,
+      factory: preset.create,
     },
   )
   const appLoop = new AppLoop(render, simulation, metric)
@@ -190,7 +190,7 @@ function setup(config: {
   })
   resizeObserver.observe(canvas)
 
-  simulation.start(preset.config.count, preset.create)
+  simulation.start(preset.config.count)
 
   appLoop.loop(0)
 
@@ -295,10 +295,7 @@ function handleOptionsChange(config: GeneralConfig) {
   }
 
   if (config.speed !== currentConfig.speed) {
-    simulation.updateConfig({
-      speed: config.speed,
-      maxFPS: SIMULATION_FPS,
-    })
+    simulation.setSpeed(config.speed, SIMULATION_FPS)
     currentConfig.speed = config.speed
     shouldSave = true
   }

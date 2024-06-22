@@ -1,7 +1,7 @@
 import { Metric } from '../metric/Metric'
+import { Particle } from '../particles/Particle'
 import { Render } from '../render/Render'
 import { Simulation } from '../simulation/Simulation'
-import { Item } from '../simulation/common'
 
 export class AppLoop {
   private rafId: number
@@ -9,7 +9,7 @@ export class AppLoop {
 
   constructor(
     private render: Render,
-    private simulation: Simulation<Item>,
+    private simulation: Simulation<Particle>,
     private metric: Metric,
   ) {}
 
