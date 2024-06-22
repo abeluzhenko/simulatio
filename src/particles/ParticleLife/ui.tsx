@@ -39,6 +39,7 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
           value={count}
           min={defaultConfig.minCount}
           max={defaultConfig.maxCount}
+          step={100}
           onChange={(value) => setCount(value)}
         />
       </div>

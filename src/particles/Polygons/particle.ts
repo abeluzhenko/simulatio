@@ -1,16 +1,23 @@
-import { Random } from '../math/Random'
-import { ItemId, Storage } from '../storage/Storage'
-import { World, ItemFactory } from '../simulation/common'
-import { Particle } from './Particle'
-import { Vector2, distance } from '../math/Vector2'
-import { Rect } from '../math/Rect'
-
-const MAX_SPEED = 2
-const MIN_SPEED = 1
-const MAX_CONNECTIONS = Infinity
-const RANGE = 100
+import { Random } from '../../math/Random'
+import { ItemId, Storage } from '../../storage/Storage'
+import { World, ItemFactory } from '../../simulation/common'
+import { Particle } from '../Particle'
+import { Vector2, distance } from '../../math/Vector2'
+import { Rect } from '../../math/Rect'
+import { Config, defaultConfig } from './config'
+import { UI } from './ui'
 
 export class Polygons implements Particle {
+  private static _config = defaultConfig
+
+  static get config() {
+    return Polygons._config
+  }
+
+  static get ui() {
+    return UI
+  }
+
   private position: Vector2
   private velocity: Vector2
   private range: number
@@ -33,8 +40,8 @@ export class Polygons implements Particle {
       y: Random.next() * world.height,
     }
     this.velocity = {
-      x: Random.next() * MAX_SPEED - MIN_SPEED,
-      y: Random.next() * MAX_SPEED - MIN_SPEED,
+      x: Random.next() * Polygons._config.maxSpeed - Polygons._config.minSpeed,
+      y: Random.next() * Polygons._config.maxSpeed - Polygons._config.minSpeed,
     }
     this._rect = {
       x: this.position.x,
@@ -42,7 +49,7 @@ export class Polygons implements Particle {
       width: 1,
       height: 1,
     }
-    this.range = RANGE
+    this.range = Polygons._config.range
     this.rangeRect = {
       x: this.position.x - this.range,
       y: this.position.y - this.range,
@@ -77,7 +84,7 @@ export class Polygons implements Particle {
           y: other.position.y,
           distance: d,
         })
-        if (this.vertexes.length >= MAX_CONNECTIONS) {
+        if (this.vertexes.length >= Polygons._config.maxConnections) {
           break
         }
       }
@@ -98,7 +105,7 @@ export class Polygons implements Particle {
     const g = 50
 
     for (const vertex of this.vertexes) {
-      const alpha = 1 - vertex.distance / RANGE
+      const alpha = 1 - vertex.distance / Polygons._config.range
       ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
       ctx.beginPath()
       ctx.moveTo(this.position.x, this.position.y)
@@ -118,5 +125,9 @@ export class Polygons implements Particle {
 
   static create: ItemFactory<Polygons> = ({ id, storage, world }) => {
     return new Polygons(id, storage, world)
+  }
+
+  static updateConfig(value: Config) {
+    this._config = value
   }
 }

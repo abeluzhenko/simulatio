@@ -1,10 +1,13 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { ItemFactory } from './simulation/common'
 import { GeneralConfig, SimulationFC, UI } from './ui/UI'
 import { AppLoop } from './app/AppLoop'
 import { Storage } from './storage/Storage'
+import { SimpleStorage } from './storage/SimpleStorage'
 import { MyQTStorage } from './storage/MyQTStorage'
 import { RBushStorage } from './storage/RBushStorage'
+import { SimpleQTStorage } from './storage/SimpleQTStorage'
 import {
   Metric,
   PERFORMANCE_FRAME,
@@ -13,26 +16,23 @@ import {
 } from './metric/Metric'
 import { Render } from './render/Render'
 import { Simulation } from './simulation/Simulation'
-import { SimpleCollision } from './particles/SimpleCollision'
 import { Random } from './math/Random'
 import { Particle } from './particles/Particle'
-import { Polygons } from './particles/Polygons'
-import { ConveyLife } from './particles/ConveyLife'
-import { SimpleStorage } from './storage/SimpleStorage'
-import { Darwin } from './particles/Darwin'
+import { SimpleCollision } from './particles/SimpleCollision/particle'
+import { Polygons } from './particles/Polygons/particle'
+import { ConveyLife } from './particles/ConveyLife/particle'
+import { Darwin } from './particles/Darwin/particle'
 import { ParticleLife } from './particles/ParticleLife/particle'
-import { UI as ParticleLifeUI } from './particles/ParticleLife/ui'
-import {
-  Config as ParticleLifeConfig,
-  defaultConfig as particleLifeDefaultConfig,
-} from './particles/ParticleLife/config'
-import { SimpleQTStorage } from './storage/SimpleQTStorage'
-import { ItemFactory } from './simulation/common'
 
 declare global {
   interface Window {
     saveMetric: () => void
   }
+}
+
+type CommonConfig = {
+  count: number
+  bgColor: string
 }
 
 const PRESETS = [
@@ -55,76 +55,42 @@ const DEBUG = [
   { id: 'storage', value: 'Storage' },
 ] as const
 
-const SIMULATIONS_UI: {
-  [Key in (typeof PRESETS)[number]['id']]: {
-    Simulation: SimulationFC<any>
-    onChange: (config: any) => void
-    defaultConfig: any
-  }
-} = {
-  simpleCollision: {
-    Simulation: () => '',
-    onChange: () => {},
-    defaultConfig: {},
-  },
-  darwin: {
-    Simulation: () => '',
-    onChange: () => {},
-    defaultConfig: {},
-  },
-  polygons: {
-    Simulation: () => '',
-    onChange: () => {},
-    defaultConfig: {},
-  },
-  conveyLife: {
-    Simulation: () => '',
-    onChange: () => {},
-    defaultConfig: {},
-  },
-  particleLife: {
-    Simulation: ParticleLifeUI,
-    onChange: (value: ParticleLifeConfig) => {
-      saveConfig('particleLife', value)
-      ParticleLife.updateConfig(value)
-    },
-    defaultConfig: loadConfig('particleLife', particleLifeDefaultConfig),
-  },
-}
+let cleanup: () => void | undefined
 
 const presets: {
   [Key in (typeof PRESETS)[number]['id']]: {
-    factory: ItemFactory<any>
-    count: number
-    bgColor: string
+    create: ItemFactory<any>
+    config: CommonConfig
+    updateConfig: (config: CommonConfig & any) => void
+    ui: SimulationFC<any>
   }
 } = {
-  simpleCollision: {
-    factory: SimpleCollision.create,
-    count: 400,
-    bgColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  darwin: {
-    factory: Darwin.create,
-    count: 4_000,
-    bgColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  polygons: {
-    factory: Polygons.create,
-    count: 1000,
-    bgColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  conveyLife: {
-    factory: ConveyLife.create,
-    count: 10_000,
-    bgColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  particleLife: {
-    factory: ParticleLife.create,
-    count: 2000,
-    bgColor: 'rgba(0, 0, 0, 0.03)',
-  },
+  simpleCollision: SimpleCollision,
+  darwin: Darwin,
+  polygons: Polygons,
+  conveyLife: ConveyLife,
+  particleLife: ParticleLife,
 }
+Object.entries(presets).forEach(([key, value]) => {
+  value.updateConfig(loadConfig(key, value.config))
+})
+
+const SIMULATIONS_UI = Object.entries(presets).reduce((acc, [key, value]) => {
+  acc[key] = {
+    Simulation: value.ui,
+    onChange: (config: { count: number }) => {
+      if (value.config.count !== config.count) {
+        cleanup?.()
+        setup(currentConfig)
+      }
+
+      saveConfig(key, config)
+      value.updateConfig(config)
+    },
+    defaultConfig: loadConfig(key, value.config),
+  }
+  return acc
+}, {})
 
 const currentConfig = loadConfig<GeneralConfig>('general', {
   preset: 'simpleCollision',
@@ -135,7 +101,6 @@ const currentConfig = loadConfig<GeneralConfig>('general', {
   showConfig: true,
 })
 
-let cleanup: () => void | undefined
 let statsWorker: Worker | undefined
 let simulation: Simulation<Particle>
 const metric = new Metric({ framesInBuffer: 20, bufferSize: 100 })
@@ -143,12 +108,12 @@ const metric = new Metric({ framesInBuffer: 20, bufferSize: 100 })
 const SIMULATION_FPS = 120
 
 document.addEventListener('DOMContentLoaded', () => {
-  setup()
+  setup(currentConfig)
 
   statsWorker = togglePerfStats(currentConfig.showStats, metric)
 })
 
-function setup(config?: {
+function setup(config: {
   preset: string
   storage: string
   debug: string
@@ -194,7 +159,7 @@ function setup(config?: {
   const render = new Render(canvas, storage, {
     vpWidth: canvas.width,
     vpHeight: canvas.height,
-    bgColor: preset.bgColor ?? '#000000',
+    bgColor: preset.config.bgColor ?? '#000000',
     debug: config?.debug ?? undefined,
   })
 
@@ -203,7 +168,7 @@ function setup(config?: {
     {
       width: canvas.width,
       height: canvas.height,
-      particleCount: preset.count,
+      particleCount: preset.config.count,
     },
     {
       maxFPS: SIMULATION_FPS,
@@ -225,7 +190,7 @@ function setup(config?: {
   })
   resizeObserver.observe(canvas)
 
-  simulation.start(preset.count, preset.factory)
+  simulation.start(preset.config.count, preset.create)
 
   appLoop.loop(0)
 
@@ -354,14 +319,11 @@ function handleOptionsChange(config: GeneralConfig) {
   }
 }
 
-function saveConfig<T>(key: 'general' | keyof typeof presets, config: T) {
+function saveConfig<T>(key: string, config: T) {
   localStorage.setItem(key, JSON.stringify(config))
 }
 
-function loadConfig<T>(
-  key: 'general' | keyof typeof presets,
-  defaultValue: T,
-): T {
+function loadConfig<T>(key: string, defaultValue: T): T {
   const storageConfig = localStorage.getItem(key)
   if (!storageConfig) {
     return defaultValue

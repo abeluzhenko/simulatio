@@ -1,14 +1,23 @@
-import { Random } from '../math/Random'
-import { Rect } from '../math/Rect'
-import { Vector2 } from '../math/Vector2'
-import { ItemFactory, World } from '../simulation/common'
-import { ItemId, Storage } from '../storage/Storage'
-import { Particle } from './Particle'
-
-const STEP_TIME_MS = 80
-const BORDER_SIZE = 1
+import { Random } from '../../math/Random'
+import { Rect } from '../../math/Rect'
+import { Vector2 } from '../../math/Vector2'
+import { ItemFactory, World } from '../../simulation/common'
+import { ItemId, Storage } from '../../storage/Storage'
+import { Particle } from './../Particle'
+import { Config, defaultConfig } from './config'
+import { UI } from './ui'
 
 export class ConveyLife implements Particle {
+  private static _config = defaultConfig
+
+  static get config() {
+    return ConveyLife._config
+  }
+
+  static get ui() {
+    return UI
+  }
+
   private position: Vector2
   private state: boolean
   private nextState: boolean
@@ -51,7 +60,7 @@ export class ConveyLife implements Particle {
       return
     }
 
-    if (this.timeFromLastStep < STEP_TIME_MS) {
+    if (this.timeFromLastStep < ConveyLife.config.stepTimeMs) {
       this.timeFromLastStep += dt
       return
     }
@@ -89,10 +98,10 @@ export class ConveyLife implements Particle {
 
     ctx.fillStyle = '#00ff00'
     ctx.fillRect(
-      this.position.x + BORDER_SIZE,
-      this.position.y + BORDER_SIZE,
-      ConveyLife.size - BORDER_SIZE * 2,
-      ConveyLife.size - BORDER_SIZE * 2,
+      this.position.x + ConveyLife.config.borderSize,
+      this.position.y + ConveyLife.config.borderSize,
+      ConveyLife.size - ConveyLife.config.borderSize * 2,
+      ConveyLife.size - ConveyLife.config.borderSize * 2,
     )
     ctx.fill()
   }
@@ -152,5 +161,9 @@ export class ConveyLife implements Particle {
       ConveyLife.setup(world)
     }
     return new ConveyLife(id, storage, ConveyLife.gridSize, ConveyLife.size)
+  }
+
+  static updateConfig(value: Config) {
+    ConveyLife._config = value
   }
 }

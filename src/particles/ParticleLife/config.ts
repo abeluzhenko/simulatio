@@ -1,5 +1,6 @@
 export type Config = {
   count: number
+  bgColor: string
   minCount: number
   maxCount: number
   maxRadius: number
@@ -13,6 +14,7 @@ export type Config = {
 
 export const defaultConfig: Config = {
   count: 2000,
+  bgColor: 'rgba(0, 0, 0, 0.03)',
   minCount: 1000,
   maxCount: 10_000,
   maxRadius: 6,

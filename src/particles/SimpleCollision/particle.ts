@@ -1,17 +1,23 @@
-import { Random } from '../math/Random'
-import { ItemId, Storage } from '../storage/Storage'
-import { World, ItemFactory } from '../simulation/common'
-import { Particle } from './Particle'
-import { Vector2, distance, rotate } from '../math/Vector2'
-import { Rect } from '../math/Rect'
-
-const MAX_SPEED = 5
-const MIN_SPEED = 1
-const MAX_RADIUS = 4
-const MIN_RADIUS = 1
-const DENSITY = 1
+import { Random } from '../../math/Random'
+import { ItemId, Storage } from '../../storage/Storage'
+import { World, ItemFactory } from '../../simulation/common'
+import { Particle } from '../Particle'
+import { Vector2, distance, rotate } from '../../math/Vector2'
+import { Rect } from '../../math/Rect'
+import { Config, defaultConfig } from './config'
+import { UI } from './ui'
 
 export class SimpleCollision implements Particle {
+  private static _config = defaultConfig
+
+  static get config() {
+    return SimpleCollision._config
+  }
+
+  static get ui() {
+    return UI
+  }
+
   private position: Vector2
   private velocity: Vector2
   private radius: number
@@ -35,11 +41,19 @@ export class SimpleCollision implements Particle {
       y: Random.next() * world.height,
     }
     this.velocity = {
-      x: Random.next() * MAX_SPEED - MIN_SPEED,
-      y: Random.next() * MAX_SPEED - MIN_SPEED,
+      x:
+        Random.next() * SimpleCollision._config.maxSpeed -
+        SimpleCollision._config.minSpeed,
+      y:
+        Random.next() * SimpleCollision._config.maxSpeed -
+        SimpleCollision._config.minSpeed,
     }
-    this.radius = Math.max(MIN_RADIUS, Random.next() * MAX_RADIUS)
-    this.mass = DENSITY * Math.PI * this.radius * this.radius
+    this.radius = Math.max(
+      SimpleCollision._config.minRadius,
+      Random.next() * SimpleCollision._config.maxRadius,
+    )
+    this.mass =
+      SimpleCollision._config.density * Math.PI * this.radius * this.radius
     this._rect = {
       x: this.position.x - this.radius,
       y: this.position.y - this.radius,
@@ -128,5 +142,9 @@ export class SimpleCollision implements Particle {
 
   static create: ItemFactory<SimpleCollision> = ({ id, storage, world }) => {
     return new SimpleCollision(id, storage, world)
+  }
+
+  static updateConfig(value: Config) {
+    this._config = value
   }
 }

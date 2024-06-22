@@ -1,18 +1,23 @@
-import { Random } from '../math/Random'
-import { ItemId, Storage } from '../storage/Storage'
-import { World, ItemFactory } from '../simulation/common'
-import { Particle } from './Particle'
-import { Vector2, distance, normalize, rotate } from '../math/Vector2'
-import { Rect } from '../math/Rect'
-
-const MAX_SPEED = 5
-const MIN_SPEED = 1
-const MAX_RADIUS = 4
-const MIN_RADIUS = 1
-const ABSORB_RATE = 0.3
-const MASS_THRESHOLD = 40
+import { Random } from '../../math/Random'
+import { ItemId, Storage } from '../../storage/Storage'
+import { World, ItemFactory } from '../../simulation/common'
+import { Particle } from '../Particle'
+import { Vector2, distance, normalize, rotate } from '../../math/Vector2'
+import { Rect } from '../../math/Rect'
+import { Config, defaultConfig } from './config'
+import { UI } from './ui'
 
 export class Darwin implements Particle {
+  private static _config = defaultConfig
+
+  static get config() {
+    return Darwin._config
+  }
+
+  static get ui() {
+    return UI
+  }
+
   private position: Vector2
   private velocity: Vector2
   private radius: number
@@ -36,11 +41,14 @@ export class Darwin implements Particle {
       y: Random.next() * world.height,
     }
     this.velocity = {
-      x: Random.next() * MAX_SPEED - MIN_SPEED,
-      y: Random.next() * MAX_SPEED - MIN_SPEED,
+      x: Random.next() * Darwin._config.maxSpeed - Darwin._config.minSpeed,
+      y: Random.next() * Darwin._config.maxSpeed - Darwin._config.minSpeed,
     }
-    this.mass = Math.max(MIN_RADIUS, Random.next() * MAX_RADIUS)
-    this.maxMass = MASS_THRESHOLD * Random.next()
+    this.mass = Math.max(
+      Darwin._config.minRadius,
+      Random.next() * Darwin._config.maxRadius,
+    )
+    this.maxMass = Darwin._config.massThreshold * Random.next()
     this.radius = this.mass
     this._rect = {
       x: this.position.x - this.radius,
@@ -106,11 +114,11 @@ export class Darwin implements Particle {
 
         if (other.mass > this.mass) {
           other.killsCount++
-          other.mass += this.mass * ABSORB_RATE
+          other.mass += this.mass * Darwin._config.absorbRate
           this.die()
         } else {
           this.killsCount++
-          this.mass += other.mass * ABSORB_RATE
+          this.mass += other.mass * Darwin._config.absorbRate
           other.die()
         }
       }
@@ -170,12 +178,15 @@ export class Darwin implements Particle {
       }
 
       const angle = Random.next() * Math.PI * 2
-      particle.velocity.x = Math.cos(angle) * MAX_SPEED
-      particle.velocity.y = Math.sin(angle) * MAX_SPEED
+      particle.velocity.x = Math.cos(angle) * Darwin._config.maxSpeed
+      particle.velocity.y = Math.sin(angle) * Darwin._config.maxSpeed
       particle.position.x = x + Math.cos(angle) * radius * Random.next()
       particle.position.y = y + Math.sin(angle) * radius * Random.next()
-      particle.mass = Math.max(MIN_RADIUS, Random.next() * MAX_RADIUS)
-      particle.maxMass = MASS_THRESHOLD * Random.next()
+      particle.mass = Math.max(
+        Darwin._config.minRadius,
+        Random.next() * Darwin._config.maxRadius,
+      )
+      particle.maxMass = Darwin._config.massThreshold * Random.next()
       particle.radius = particle.mass
 
       particle._rect = {
@@ -206,5 +217,9 @@ export class Darwin implements Particle {
 
   static create: ItemFactory<Darwin> = ({ id, storage, world }) => {
     return new Darwin(id, storage, world)
+  }
+
+  static updateConfig(value: Config) {
+    Darwin._config = value
   }
 }
