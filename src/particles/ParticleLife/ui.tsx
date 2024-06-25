@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useState } from 'react'
 import { Number } from '../../ui/components/Number/Number'
 import { Range } from '../../ui/components/Range/Range'
+import { Color } from '../../ui/components/Color/Color'
 import { mapRange } from '../../math/common'
 import { Config } from './config'
 
@@ -18,6 +19,7 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
   const [gravityDamping, setGravityDamping] = useState(
     defaultConfig.gravityDamping,
   )
+  const [bgColor, setBgColor] = useState(defaultConfig.bgColor)
 
   useEffect(() => {
     onChange({
@@ -28,8 +30,17 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
       forceRadius,
       damping,
       gravityDamping,
+      bgColor,
     })
-  }, [count, minRadius, maxRadius, forceRadius, damping, gravityDamping])
+  }, [
+    count,
+    minRadius,
+    maxRadius,
+    forceRadius,
+    damping,
+    gravityDamping,
+    bgColor,
+  ])
 
   return (
     <div className="UI__group">
@@ -89,6 +100,10 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
           step={1}
           onChange={(value) => setGravityDamping(mapRange(value, 0, 100, 0, 1))}
         />
+      </div>
+      <div className="UI__option">
+        <span className="Option__title">BG Color</span>
+        <Color value={bgColor} onChange={(value) => setBgColor(value)} />
       </div>
     </div>
   )

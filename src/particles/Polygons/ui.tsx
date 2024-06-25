@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useState } from 'react'
 import { Number } from '../../ui/components/Number/Number'
+import { Color } from '../../ui/components/Color/Color'
 import { Config } from './config'
 
 type Props = {
@@ -9,11 +10,23 @@ type Props = {
 
 export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
   const [count, setCount] = useState(defaultConfig.count)
+  const [maxSpeed, setMaxSpeed] = useState(defaultConfig.maxSpeed)
+  const [minSpeed, setMinSpeed] = useState(defaultConfig.minSpeed)
+  const [maxConnections, setMaxConnections] = useState(
+    defaultConfig.maxConnections,
+  )
+  const [range, setRange] = useState(defaultConfig.range)
+  const [bgColor, setBgColor] = useState(defaultConfig.bgColor)
 
   useEffect(() => {
     onChange({
       ...defaultConfig,
       count,
+      maxSpeed,
+      minSpeed,
+      maxConnections,
+      range,
+      bgColor,
     })
   }, [count])
 
@@ -28,6 +41,50 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
           step={100}
           onChange={(value) => setCount(value)}
         />
+      </div>
+      <div className="UI__option">
+        <span className="Option__title">Min Speed</span>
+        <Number
+          value={minSpeed}
+          min={defaultConfig.minSpeed}
+          max={defaultConfig.maxSpeed}
+          step={0.1}
+          onChange={(value) => setMinSpeed(value)}
+        />
+      </div>
+      <div className="UI__option">
+        <span className="Option__title">Max Speed</span>
+        <Number
+          value={maxSpeed}
+          min={defaultConfig.minSpeed}
+          max={defaultConfig.maxSpeed}
+          step={0.1}
+          onChange={(value) => setMaxSpeed(value)}
+        />
+      </div>
+      <div className="UI__option">
+        <span className="Option__title">Max Connections</span>
+        <Number
+          value={maxConnections}
+          min={0}
+          max={defaultConfig.maxConnections}
+          step={100}
+          onChange={(value) => setMaxConnections(value)}
+        />
+      </div>
+      <div className="UI__option">
+        <span className="Option__title">Range</span>
+        <Number
+          value={range}
+          min={0}
+          max={defaultConfig.range}
+          step={10}
+          onChange={(value) => setRange(value)}
+        />
+      </div>
+      <div className="UI__option">
+        <span className="Option__title">BG Color</span>
+        <Color value={bgColor} onChange={(value) => setBgColor(value)} />
       </div>
     </div>
   )

@@ -207,10 +207,10 @@ function setup(config: {
     console.info('Metric buffer is full')
   }
 
-  document.addEventListener('onBeforeUnload', cleanup)
+  window.addEventListener('beforeunload', cleanup)
 
   cleanup = () => {
-    document.removeEventListener('onBeforeUnload', cleanup)
+    window.removeEventListener('beforeunload', cleanup)
 
     resizeObserver.disconnect()
     simulation.stop()
