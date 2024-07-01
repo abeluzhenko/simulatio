@@ -1,0 +1,25 @@
+.Color {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+
+  --preview-size: 32px;
+}
+
+.Color__preview {
+  width: var(--preview-size);
+  height: var(--preview-size);
+  border: 2px solid var(--color-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.Color__sliders {
+  width: calc(var(--sidebar-width) - 60px);
+  right: 0;
+  top: var(--preview-size);
+  position: absolute;
+  box-sizing: border-box;
+  background: var(--color-quaternary);
+}

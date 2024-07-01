@@ -6,7 +6,6 @@
   top: 0;
   right: 0;
   height: 100%;
-  width: 280px;
 
   --color-primary: #00f200;
   --color-secondary: #05a000;
@@ -17,6 +16,9 @@
   --size-medium: 14px;
   --size-large: 18px;
 
+  --sidebar-width: 280px;
+
+  width: var(--sidebar-width);
   background: var(--color-quaternary);
   font-family: 'Verdana', sans-serif;
   color: var(--color-primary);
@@ -49,6 +51,10 @@
   padding: 6px;
   background: rgba(0, 0, 0, 0.5);
   border-radius: 4px;
+}
+
+.Option__title {
+  align-self: center;
 }
 
 .UI__toggle {

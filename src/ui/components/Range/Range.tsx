@@ -11,7 +11,7 @@ type Props = {
 
 export const Range: FC<Props> = ({ min, max, value, step = 1, onChange }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(parseInt(e.target.value, 10))
+    onChange(parseFloat(e.target.value))
   }
 
   return (

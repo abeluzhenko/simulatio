@@ -75,12 +75,23 @@ Object.entries(presets).forEach(([key, value]) => {
   value.updateConfig(loadConfig(key, value.config))
 })
 
+let statsWorker: Worker | undefined
+let simulation: Simulation<Particle>
+let render: Render
+const metric = new Metric({ framesInBuffer: 20, bufferSize: 100 })
+
+const SIMULATION_FPS = 120
+
 const SIMULATIONS_UI = Object.entries(presets).reduce((acc, [key, value]) => {
   acc[key] = {
     Simulation: value.ui,
-    onChange: (config: { count: number }) => {
+    onChange: (config: { count: number; bgColor: string }) => {
       if (value.config.count !== config.count) {
         simulation.setPopulation(config.count)
+      }
+
+      if (value.config.bgColor !== config.bgColor) {
+        render.updateConfig({ bgColor: config.bgColor })
       }
 
       saveConfig(key, config)
@@ -99,12 +110,6 @@ const currentConfig = loadConfig<GeneralConfig>('general', {
   showStats: true,
   showConfig: true,
 })
-
-let statsWorker: Worker | undefined
-let simulation: Simulation<Particle>
-const metric = new Metric({ framesInBuffer: 20, bufferSize: 100 })
-
-const SIMULATION_FPS = 120
 
 document.addEventListener('DOMContentLoaded', () => {
   setup(currentConfig)
@@ -155,7 +160,7 @@ function setup(config: {
     simple: () => new SimpleStorage(),
   }
   const storage = paramToStorage[config?.storage ?? currentConfig.storage]()
-  const render = new Render(canvas, storage, {
+  render = new Render(canvas, storage, {
     vpWidth: canvas.width,
     vpHeight: canvas.height,
     bgColor: preset.config.bgColor ?? '#000000',
