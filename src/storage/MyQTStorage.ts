@@ -1,5 +1,11 @@
 import { PriorityQueue } from '../common/PriorityQueue'
-import { Rect, containsRect, copyRect, intersects } from '../math/Rect'
+import {
+  Rect,
+  containsRect,
+  copyRect,
+  intersects,
+  rectQuadDistance,
+} from '../math/Rect'
 import { Vector2 } from '../math/Vector2'
 import { Storage, ItemId, StorageItem } from './Storage'
 
@@ -20,17 +26,6 @@ enum ChildIndex {
   TopRight,
   BottomRight,
   BottomLeft,
-}
-
-function rectQuadDistance(point: Vector2, rect: Rect): number {
-  const dx = axisDistance(point.x, rect.x, rect.x + rect.width)
-  const dy = axisDistance(point.y, rect.y, rect.y + rect.height)
-
-  return dx * dx + dy * dy
-}
-
-function axisDistance(k: number, min: number, max: number) {
-  return k < min ? min - k : k <= max ? 0 : k - max
 }
 
 function isLeafNode<T>(node: QuadNode<T>): boolean {
@@ -273,5 +268,15 @@ export class MyQTStorage<Item extends StorageItem = StorageItem>
     for (const item of items) {
       ctx.strokeRect(item.x, item.y, item.width, item.height)
     }
+  }
+
+  clear() {
+    this.tree = {
+      rect: this.tree.rect,
+      items: new Set(),
+      children: [null, null, null, null],
+    }
+    this.items.clear()
+    this.itemToNode.clear()
   }
 }

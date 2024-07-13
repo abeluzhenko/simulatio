@@ -88,4 +88,9 @@ export class RBushStorage<Item extends StorageItem = StorageItem>
   [Symbol.iterator](): IterableIterator<Item> {
     return this.items.values()
   }
+
+  clear() {
+    this.items.clear()
+    this.tree.clear()
+  }
 }

@@ -4,6 +4,7 @@ import { Vector2 } from '../math/Vector2'
 export type ItemId = number
 
 export type StorageItem = {
+  id: ItemId
   rect: Rect
 }
 

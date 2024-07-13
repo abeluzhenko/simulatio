@@ -1,7 +1,8 @@
 import { Rect, copyRect } from '../math/Rect'
-import { Vector2, quadDistance } from '../math/Vector2'
+import { Vector2 } from '../math/Vector2'
 import { Storage, ItemId, StorageItem } from './Storage'
 import QuadTree from 'simple-quadtree'
+import { getNearestQuadCompareFn } from './common'
 
 type TreeNode<Item> = {
   id: number
@@ -95,9 +96,9 @@ export class SimpleQTStorage<Item extends StorageItem = StorageItem>
 
   // @todo: this is VERY inefficient, need to be optimized
   *nearest(point: Vector2, k: number): IterableIterator<Item> {
-    const sorted = Array.from(this.items.values()).sort((a, b) => {
-      return quadDistance(point, a.rect) - quadDistance(point, b.rect)
-    })
+    const sorted = Array.from(this.items.values()).sort(
+      getNearestQuadCompareFn(point),
+    )
     for (let i = 0; i < k && i < sorted.length; i++) {
       yield sorted[i]
     }

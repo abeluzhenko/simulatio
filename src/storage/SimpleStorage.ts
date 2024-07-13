@@ -1,7 +1,8 @@
 import { Rect, copyRect, intersects } from '../math/Rect'
-import { Vector2, quadDistance } from '../math/Vector2'
+import { Vector2 } from '../math/Vector2'
 import { PriorityQueue } from '../common/PriorityQueue'
 import { Storage, ItemId, StorageItem } from './Storage'
+import { getNearestQuadCompareFn } from './common'
 
 export class SimpleStorage<Item extends StorageItem = StorageItem>
   implements Storage<Item>
@@ -37,9 +38,7 @@ export class SimpleStorage<Item extends StorageItem = StorageItem>
   }
 
   *nearest(point: Vector2, k: number): IterableIterator<Item> {
-    const queue = new PriorityQueue<Item>(
-      (a, b) => quadDistance(point, a.rect) - quadDistance(point, b.rect),
-    )
+    const queue = new PriorityQueue<Item>(getNearestQuadCompareFn(point))
 
     for (const item of this) {
       queue.push(item)
@@ -57,5 +56,9 @@ export class SimpleStorage<Item extends StorageItem = StorageItem>
 
   [Symbol.iterator]() {
     return this.data.values()
+  }
+
+  clear() {
+    this.data.clear()
   }
 }

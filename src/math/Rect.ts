@@ -40,3 +40,14 @@ export function copyRect(dest: Rect, source: Rect): void {
   dest.width = source.width
   dest.height = source.height
 }
+
+function axisDistance(k: number, min: number, max: number) {
+  return k < min ? min - k : k <= max ? 0 : k - max
+}
+
+export function rectQuadDistance(point: Vector2, rect: Rect): number {
+  const dx = axisDistance(point.x, rect.x, rect.x + rect.width)
+  const dy = axisDistance(point.y, rect.y, rect.y + rect.height)
+
+  return dx * dx + dy * dy
+}
