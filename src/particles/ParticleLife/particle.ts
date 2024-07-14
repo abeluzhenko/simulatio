@@ -1,11 +1,12 @@
 import { Random } from '../../math/Random'
 import { ItemId, Storage } from '../../storage/Storage'
 import { World, ItemFactory } from '../../simulation/common'
-import { Particle } from '../Particle'
+import { Particle, createGraphics } from '../Particle'
 import { Vector2, distance } from '../../math/Vector2'
 import { Rect } from '../../math/Rect'
 import { Config, defaultConfig } from './config'
 import { UI } from './ui'
+import { createColor } from '../../math/Color'
 
 export class ParticleLife implements Particle {
   private static _config = defaultConfig
@@ -31,6 +32,17 @@ export class ParticleLife implements Particle {
   get rect(): Rect {
     return this._rect
   }
+
+  graphics = createGraphics({
+    type: 'circle',
+    radius: 0,
+    color: 0x0,
+    x: 0,
+    y: 0,
+    strokeWidth: 0,
+    strokeColor: 0x0,
+    visible: true,
+  })
 
   constructor(
     public id: ItemId,
@@ -130,9 +142,7 @@ export class ParticleLife implements Particle {
     this._rect.y = this.position.y - this.radius
     this._forceRect.x = this.position.x - ParticleLife._config.forceRadius
     this._forceRect.y = this.position.y - ParticleLife._config.forceRadius
-  }
 
-  render(ctx: CanvasRenderingContext2D) {
     const sx = this.position.x / this.world.width
     const sy = this.position.y / this.world.height
     const r =
@@ -141,11 +151,10 @@ export class ParticleLife implements Particle {
       this.kind === 'blue' ? 100 + Math.floor(sy * 155) : Math.floor(sy * 100)
     const g = this.kind === 'green' ? 255 : 50
 
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`
-    ctx.beginPath()
-    ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-    ctx.closePath()
-    ctx.fill()
+    this.graphics[0].color = createColor(r, g, b, 1)
+    this.graphics[0].radius = this.radius
+    this.graphics[0].x = this.position.x
+    this.graphics[0].y = this.position.y
   }
 
   destroy() {}

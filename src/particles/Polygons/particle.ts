@@ -1,11 +1,13 @@
 import { Random } from '../../math/Random'
 import { ItemId, Storage } from '../../storage/Storage'
 import { World, ItemFactory } from '../../simulation/common'
-import { Particle } from '../Particle'
+import { Particle, createGraphics } from '../Particle'
 import { Vector2, distance } from '../../math/Vector2'
 import { Rect } from '../../math/Rect'
 import { Config, defaultConfig } from './config'
 import { UI } from './ui'
+import { createColor } from '../../math/Color'
+import { Line } from '../../render/Graphics'
 
 export class Polygons implements Particle {
   private static _config = defaultConfig
@@ -29,6 +31,30 @@ export class Polygons implements Particle {
   get rect(): Rect {
     return this._rect
   }
+
+  graphics = createGraphics(
+    {
+      type: 'circle',
+      radius: 0,
+      color: 0x0,
+      x: 0,
+      y: 0,
+      strokeWidth: 0,
+      strokeColor: 0x0,
+      visible: true,
+    },
+    {
+      type: 'line',
+      x1: 0,
+      y1: 0,
+      x2: 0,
+      y2: 0,
+      strokeWidth: 1,
+      strokeColor: 0x0,
+      color: 0x0,
+      visible: true as boolean,
+    },
+  )
 
   constructor(
     public id: ItemId,
@@ -97,26 +123,32 @@ export class Polygons implements Particle {
     this._rect.y = this.position.y
     this.rangeRect.x = this.position.x - this.range
     this.rangeRect.y = this.position.y - this.range
-  }
 
-  render(ctx: CanvasRenderingContext2D) {
     const r = Math.floor((this.position.y / this.world.height) * 255)
     const b = Math.floor((this.position.x / this.world.width) * 255)
     const g = 50
-
-    for (const vertex of this.vertexes) {
-      const alpha = 1 - vertex.distance / Polygons._config.range
-      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
-      ctx.beginPath()
-      ctx.moveTo(this.position.x, this.position.y)
-      ctx.lineTo(vertex.x, vertex.y)
-      ctx.closePath()
-      ctx.stroke()
+    for (let i = 0; i < this.vertexes.length; i++) {
+      const line = (this.graphics[i + 1] ?? {
+        type: 'line',
+        visible: true,
+      }) as Line
+      const a = 1 - this.vertexes[i].distance / Polygons._config.range
+      line.strokeColor = createColor(r, g, b, a)
+      line.strokeWidth = 1
+      line.x1 = this.position.x
+      line.y1 = this.position.y
+      line.x2 = this.vertexes[i].x
+      line.y2 = this.vertexes[i].y
+      this.graphics[i + 1] = line
     }
 
-    ctx.fillStyle = `rgb(255, 255, 255)`
-    ctx.arc(this.position.x, this.position.y, 2, 0, Math.PI * 2)
-    ctx.fill()
+    this.graphics[0].x = this.position.x
+    this.graphics[0].y = this.position.y
+    this.graphics[0].radius = 2
+    this.graphics[0].color = 0xffffffff
+
+    // @ts-expect-error the fastest way to remove elements from array
+    this.graphics.length = this.vertexes.length + 1
   }
 
   destroy() {

@@ -1,11 +1,12 @@
 import { Random } from '../../math/Random'
 import { ItemId, Storage } from '../../storage/Storage'
 import { World, ItemFactory } from '../../simulation/common'
-import { Particle } from '../Particle'
+import { Particle, createGraphics } from '../Particle'
 import { Vector2, distance, rotate } from '../../math/Vector2'
 import { Rect } from '../../math/Rect'
 import { Config, defaultConfig } from './config'
 import { UI } from './ui'
+import { createColor } from '../../math/Color'
 
 export class SimpleCollision implements Particle {
   private static _config = defaultConfig
@@ -22,7 +23,6 @@ export class SimpleCollision implements Particle {
   private velocity: Vector2
   private radius: number
   private mass: number
-  private color: string
   private skipCollision = false
 
   private _rect: Rect
@@ -30,6 +30,17 @@ export class SimpleCollision implements Particle {
   get rect(): Rect {
     return this._rect
   }
+
+  graphics = createGraphics({
+    type: 'circle',
+    radius: 0,
+    color: 0x0,
+    x: 0,
+    y: 0,
+    strokeWidth: 0,
+    strokeColor: 0x0,
+    visible: true,
+  })
 
   constructor(
     public id: ItemId,
@@ -127,15 +138,10 @@ export class SimpleCollision implements Particle {
     const b = Math.floor((this.position.x / this.world.width) * 255)
     const g = 50
 
-    this.color = `rgb(${r}, ${g}, ${b})`
-  }
-
-  render(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = this.color
-    ctx.beginPath()
-    ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-    ctx.closePath()
-    ctx.fill()
+    this.graphics[0].color = createColor(r, g, b, 1)
+    this.graphics[0].radius = this.radius
+    this.graphics[0].x = this.position.x
+    this.graphics[0].y = this.position.y
   }
 
   destroy() {}

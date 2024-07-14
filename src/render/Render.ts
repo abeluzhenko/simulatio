@@ -1,9 +1,12 @@
+import { colorToRGBA } from '../math/Color'
 import { Rect } from '../math/Rect'
-import { Storage } from '../storage/Storage'
+import { ItemId, Storage } from '../storage/Storage'
+import { Graphics } from './Graphics'
 
 type RenderItem = {
-  render(ctx: CanvasRenderingContext2D): void
+  id: ItemId
   rect: Rect
+  graphics: Graphics[]
 }
 
 type RenderConfig = {
@@ -54,11 +57,47 @@ export class Render {
     }
 
     for (const particle of this.storage) {
-      particle.render(this.ctx)
+      this.render(particle.graphics)
     }
+  }
 
-    if (this.config.debug === 'storage') {
-      this.storage.__debug?.(this.ctx)
+  private render(graphics: Graphics[]) {
+    for (const shape of graphics) {
+      if (!shape.visible) {
+        continue
+      }
+
+      this.ctx.fillStyle = colorToRGBA(shape.color)
+      if (shape.strokeWidth > 0) {
+        this.ctx.strokeStyle = colorToRGBA(shape.strokeColor)
+        this.ctx.lineWidth = shape.strokeWidth
+      }
+      switch (shape.type) {
+        case 'rectangle': {
+          this.ctx.fillRect(shape.x, shape.y, shape.width, shape.height)
+          if (shape.strokeWidth > 0) {
+            this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height)
+          }
+          break
+        }
+        case 'circle': {
+          this.ctx.beginPath()
+          this.ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2)
+          this.ctx.fill()
+          if (shape.strokeWidth > 0) {
+            this.ctx.stroke()
+          }
+          break
+        }
+        case 'line': {
+          this.ctx.beginPath()
+          this.ctx.moveTo(shape.x1, shape.y1)
+          this.ctx.lineTo(shape.x2, shape.y2)
+          this.ctx.closePath()
+          this.ctx.stroke()
+          break
+        }
+      }
     }
   }
 }
