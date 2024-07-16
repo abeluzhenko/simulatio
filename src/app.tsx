@@ -14,7 +14,7 @@ import {
   PERFORMANCE_RESET,
   PERFORMANCE_START,
 } from './metric/Metric'
-import { Render } from './render/Render'
+import { Canvas2DRender } from './render/Canvas2DRender'
 import { Simulation } from './simulation/Simulation'
 import { Random } from './math/Random'
 import { Particle } from './particles/Particle'
@@ -23,6 +23,8 @@ import { Polygons } from './particles/Polygons/particle'
 import { ConveyLife } from './particles/ConveyLife/particle'
 import { Darwin } from './particles/Darwin/particle'
 import { ParticleLife } from './particles/ParticleLife/particle'
+import { Render } from './render/Render'
+import { WebGLRender } from './render/WebGLRender'
 
 declare global {
   interface Window {
@@ -160,7 +162,13 @@ function setup(config: {
     simple: () => new SimpleStorage(),
   }
   const storage = paramToStorage[config?.storage ?? currentConfig.storage]()
-  render = new Render(canvas, storage, {
+  // render = new Canvas2DRender(canvas, storage, {
+  //   vpWidth: canvas.width,
+  //   vpHeight: canvas.height,
+  //   bgColor: preset.config.bgColor ?? '#000000',
+  //   debug: config?.debug ?? undefined,
+  // })
+  render = new WebGLRender(canvas, storage, {
     vpWidth: canvas.width,
     vpHeight: canvas.height,
     bgColor: preset.config.bgColor ?? '#000000',

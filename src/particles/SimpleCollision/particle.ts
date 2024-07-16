@@ -38,7 +38,7 @@ export class SimpleCollision implements Particle {
     x: 0,
     y: 0,
     strokeWidth: 0,
-    strokeColor: 0x0,
+    strokeColor: createColor(255, 255, 0, 1),
     visible: true,
   })
 

@@ -104,7 +104,7 @@ export class ConveyLife implements Particle {
     this.graphics[0].width = ConveyLife.size
     this.graphics[0].height = ConveyLife.size
     this.graphics[0].strokeWidth = ConveyLife.config.borderSize
-    this.graphics[0].strokeColor = createColor(0, 0, 0, 1)
+    this.graphics[0].strokeColor = createColor(255, 255, 255, 1)
   }
 
   afterUpdate(): void {

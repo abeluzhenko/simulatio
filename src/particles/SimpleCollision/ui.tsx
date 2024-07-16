@@ -28,7 +28,16 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
       count,
       bgColor,
     })
-  }, [count])
+  }, [
+    count,
+    minSpeed,
+    maxSpeed,
+    maxRadius,
+    minRadius,
+    density,
+    bgColor,
+    onChange,
+  ])
 
   return (
     <div className="UI__group">
