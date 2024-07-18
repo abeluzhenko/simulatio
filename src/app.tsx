@@ -162,13 +162,7 @@ function setup(config: {
     simple: () => new SimpleStorage(),
   }
   const storage = paramToStorage[config?.storage ?? currentConfig.storage]()
-  // render = new Canvas2DRender(canvas, storage, {
-  //   vpWidth: canvas.width,
-  //   vpHeight: canvas.height,
-  //   bgColor: preset.config.bgColor ?? '#000000',
-  //   debug: config?.debug ?? undefined,
-  // })
-  render = new WebGLRender(canvas, storage, {
+  render = new Canvas2DRender(canvas, storage, {
     vpWidth: canvas.width,
     vpHeight: canvas.height,
     bgColor: preset.config.bgColor ?? '#000000',

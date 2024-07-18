@@ -28,7 +28,7 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
       range,
       bgColor,
     })
-  }, [count])
+  }, [count, maxSpeed, minSpeed, maxConnections, range, bgColor])
 
   return (
     <div className="UI__group">
