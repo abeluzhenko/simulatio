@@ -4,12 +4,11 @@ import { Graphics } from './Graphics'
 import { RenderConfig, RenderItem } from './Render'
 import { getAlpha, getBlue, getGreen, getRed } from '../math/Color'
 
-import circleVertexShaderSrc from './webgl/circle.vert'
+import shapeVertexShaderSrc from './webgl/shape.vert'
 import circleFragmentShaderSrc from './webgl/circle.frag'
-import rectangleVertexShaderSrc from './webgl/rectangle.vert'
 import rectangleFragmentShaderSrc from './webgl/rectangle.frag'
-import lineVertexShaderSrc from './webgl/line.vert'
 import lineFragmentShaderSrc from './webgl/line.frag'
+import lineVertexShaderSrc from './webgl/line.vert'
 
 export class WebGLRender {
   private gl: WebGLRenderingContext
@@ -34,30 +33,26 @@ export class WebGLRender {
       width: config.vpWidth,
       height: config.vpHeight,
     }
-    const circleVertexShader = this.createShader(
+    const shapeVertexShader = this.createShader(
       gl.VERTEX_SHADER,
-      circleVertexShaderSrc,
+      shapeVertexShaderSrc,
     )
     const circleFragmentShader = this.createShader(
       gl.FRAGMENT_SHADER,
       circleFragmentShaderSrc,
     )
     const circleProgram = this.createProgram(
-      circleVertexShader,
+      shapeVertexShader,
       circleFragmentShader,
     )
     this.programs.set('circle', circleProgram)
 
-    const rectangleVertexShader = this.createShader(
-      gl.VERTEX_SHADER,
-      rectangleVertexShaderSrc,
-    )
     const rectangleFragmentShader = this.createShader(
       gl.FRAGMENT_SHADER,
       rectangleFragmentShaderSrc,
     )
     const rectangleProgram = this.createProgram(
-      rectangleVertexShader,
+      shapeVertexShader,
       rectangleFragmentShader,
     )
     this.programs.set('rectangle', rectangleProgram)
@@ -111,10 +106,19 @@ export class WebGLRender {
       let verticesCount: number
       let setSpecificUniforms: () => void
       let setShapeFunction: () => void
+      let translation: [number, number]
+      let scale: [number, number]
+      const rotation: [number, number] = [Math.sin(0), Math.cos(0)]
+      const origin: [number, number] = [0, 0]
 
       switch (graphic.type) {
         case 'circle': {
           program = this.programs.get('circle')!
+          translation = [graphic.x, graphic.y]
+          scale = [graphic.radius * 2, graphic.radius * 2]
+          origin[0] = 0.5
+          origin[1] = 0.5
+
           setSpecificUniforms = () => {
             const uCenterLocation = this.gl.getUniformLocation(
               program,
@@ -126,39 +130,27 @@ export class WebGLRender {
             )
             this.gl.uniform2f(uCenterLocation, graphic.x, graphic.y)
             this.gl.uniform1f(uRadiusLocation, graphic.radius)
+
+            this.setScaleAndRotationUniforms(program, scale, rotation)
           }
 
           setShapeFunction = () => {
-            const x1 = graphic.x - graphic.radius
-            const y1 = graphic.y - graphic.radius
-            const x2 = graphic.x + graphic.radius
-            const y2 = graphic.y + graphic.radius
-
-            // two triangles to form a rectangle
             this.gl.bufferData(
               this.gl.ARRAY_BUFFER,
-              new Float32Array([
-                x1,
-                y1,
-                x2,
-                y1,
-                x1,
-                y2,
-                x1,
-                y2,
-                x2,
-                y1,
-                x2,
-                y2,
-              ]),
+              new Float32Array([0, 0, 0, 1, 1, 0, 1, 1]),
               this.gl.STATIC_DRAW,
             )
           }
-          verticesCount = 6
+          verticesCount = 4
           break
         }
         case 'rectangle': {
           program = this.programs.get('rectangle')!
+          translation = [graphic.x, graphic.y]
+          scale = [graphic.width, graphic.height]
+          origin[0] = 0
+          origin[1] = 0
+
           setSpecificUniforms = () => {
             const uPositionLocation = this.gl.getUniformLocation(
               program,
@@ -168,68 +160,41 @@ export class WebGLRender {
 
             this.gl.uniform2f(uPositionLocation, graphic.x, graphic.y)
             this.gl.uniform2f(uSizeLocation, graphic.width, graphic.height)
+
+            this.setScaleAndRotationUniforms(program, scale, rotation)
           }
 
           setShapeFunction = () => {
-            const x1 = graphic.x
-            const y1 = graphic.y
-            const x2 = graphic.x + graphic.width
-            const y2 = graphic.y + graphic.height
-
-            // two triangles to form a rectangle
             this.gl.bufferData(
               this.gl.ARRAY_BUFFER,
-              new Float32Array([
-                x1,
-                y1,
-                x2,
-                y1,
-                x1,
-                y2,
-                x1,
-                y2,
-                x2,
-                y1,
-                x2,
-                y2,
-              ]),
+              new Float32Array([0, 0, 0, 1, 1, 0, 1, 1]),
               this.gl.STATIC_DRAW,
             )
           }
-          verticesCount = 6
+          verticesCount = 4
           break
         }
         case 'line': {
           program = this.programs.get('line')!
-          setSpecificUniforms = () => {}
-          setShapeFunction = () => {
-            const x1 = graphic.x1
-            const y1 = graphic.y1
-            const x2 = graphic.x2
-            const y2 = graphic.y2
-            const w = graphic.strokeWidth
+          translation = [graphic.x1, graphic.y1]
+          origin[0] = 0.5
+          origin[1] = 0
 
-            // two triangles to form a line
+          setSpecificUniforms = () => {
+            const uEndPositionLocation = this.gl.getUniformLocation(
+              program,
+              'u_endPosition',
+            )
+            this.gl.uniform2fv(uEndPositionLocation, [graphic.x2, graphic.y2])
+          }
+          setShapeFunction = () => {
             this.gl.bufferData(
               this.gl.ARRAY_BUFFER,
-              new Float32Array([
-                x1,
-                y1,
-                x1 + w,
-                y1,
-                x2,
-                y2,
-                x2,
-                y2,
-                x1 + w,
-                y1,
-                x2 + w,
-                y2,
-              ]),
+              new Float32Array([0, 0, 0, 1, 1, 0, 1, 1]),
               this.gl.STATIC_DRAW,
             )
           }
-          verticesCount = 6
+          verticesCount = 4
           break
         }
         default:
@@ -242,11 +207,39 @@ export class WebGLRender {
 
       this.setCommonUniforms(program, graphic)
 
+      const translationUniformLocation = this.gl.getUniformLocation(
+        program,
+        'u_translation',
+      )
+      this.gl.uniform2fv(translationUniformLocation, translation)
+
+      const originUniformLocation = this.gl.getUniformLocation(
+        program,
+        'u_origin',
+      )
+      this.gl.uniform2fv(originUniformLocation, origin)
+
       setSpecificUniforms()
+
       setShapeFunction()
 
-      this.gl.drawArrays(this.gl.TRIANGLES, 0, verticesCount)
+      this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, verticesCount)
     }
+  }
+
+  private setScaleAndRotationUniforms(
+    program: WebGLProgram,
+    scale: [number, number],
+    rotation: [number, number],
+  ) {
+    const scaleUniformLocation = this.gl.getUniformLocation(program, 'u_scale')
+    this.gl.uniform2fv(scaleUniformLocation, scale)
+
+    const rotationUniformLocation = this.gl.getUniformLocation(
+      program,
+      'u_rotation',
+    )
+    this.gl.uniform2fv(rotationUniformLocation, rotation)
   }
 
   private setPositionAttribute(program: WebGLProgram) {

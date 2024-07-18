@@ -49,7 +49,7 @@ export class Polygons implements Particle {
       y1: 0,
       x2: 0,
       y2: 0,
-      strokeWidth: 1,
+      strokeWidth: 2,
       strokeColor: 0x0,
       color: 0x0,
       visible: true as boolean,
@@ -134,7 +134,7 @@ export class Polygons implements Particle {
       }) as Line
       const a = 1 - this.vertexes[i].distance / Polygons._config.range
       line.strokeColor = createColor(r, g, b, a)
-      line.strokeWidth = 1
+      line.strokeWidth = 2
       line.x1 = this.position.x
       line.y1 = this.position.y
       line.x2 = this.vertexes[i].x
