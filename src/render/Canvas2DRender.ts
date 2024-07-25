@@ -49,6 +49,8 @@ export class Canvas2DRender implements Render {
     }
   }
 
+  destroy() {}
+
   private render(graphics: Graphics[]) {
     for (const shape of graphics) {
       if (!shape.visible) {

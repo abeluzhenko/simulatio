@@ -18,4 +18,5 @@ export type RenderConfig = {
 export type Render = {
   updateConfig(config: Partial<RenderConfig>): void
   tick(): void
+  destroy(): void
 }

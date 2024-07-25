@@ -14,6 +14,7 @@ type Item = {
 export type GeneralConfig = {
   preset: string
   storage: string
+  render: string
   debug: string
   speed: number
   showStats: boolean
@@ -29,6 +30,7 @@ type Props = {
   general: {
     presets: Readonly<[Item, ...Item[]]>
     storages: Readonly<[Item, ...Item[]]>
+    renders: Readonly<[Item, ...Item[]]>
     debug: Readonly<[Item, ...Item[]]>
     default: GeneralConfig
     onChange: (general: GeneralConfig) => void
@@ -53,10 +55,20 @@ export const UI: FC<Props> = ({ general, simulation }) => {
   const [storage, setStorage] = useState(
     general.storages.find((s) => s.id === general.default.storage)!,
   )
+  const [render, setRender] = useState(
+    general.renders.find((r) => r.id === general.default.render)!,
+  )
   const [debug, setDebug] = useState(
     general.debug.find((d) => d.id === general.default.debug)!,
   )
   const [showStats, setShowStats] = useState(general.default.showStats)
+
+  const handleRenderChange = useCallback(
+    (value: Item) => {
+      setRender(value)
+    },
+    [setRender],
+  )
 
   const handlePresetChange = useCallback(
     (value: Item) => {
@@ -82,12 +94,13 @@ export const UI: FC<Props> = ({ general, simulation }) => {
     general.onChange({
       preset: preset.id,
       storage: storage.id,
+      render: render.id,
       debug: debug.id,
       speed,
       showStats,
       showConfig: opened,
     })
-  }, [speed, preset, storage, debug, showStats, opened])
+  }, [speed, preset, storage, render, debug, showStats, opened])
 
   return (
     <div className={cx('UI__sidebar', { 'UI__sidebar--opened': opened })}>
@@ -105,6 +118,14 @@ export const UI: FC<Props> = ({ general, simulation }) => {
             step={1}
             value={speed * 100}
             onChange={(value) => setSpeed(mapRange(value, 0, 100, 0, 1))}
+          />
+        </div>
+        <div className="UI__option">
+          <span className="Option__title">Render</span>
+          <Select
+            value={render}
+            options={general.renders}
+            onChange={handleRenderChange}
           />
         </div>
         <div className="UI__option">

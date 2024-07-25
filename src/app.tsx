@@ -52,6 +52,11 @@ const STORAGES = [
   { id: 'rbush', value: 'RBush' },
 ] as const
 
+const RENDERS = [
+  { id: 'canvas', value: 'Canvas' },
+  { id: 'webgl', value: 'WebGL' },
+] as const
+
 const DEBUG = [
   { id: 'none', value: 'None' },
   { id: 'storage', value: 'Storage' },
@@ -107,6 +112,7 @@ const SIMULATIONS_UI = Object.entries(presets).reduce((acc, [key, value]) => {
 const currentConfig = loadConfig<GeneralConfig>('general', {
   preset: 'simpleCollision',
   storage: 'simple',
+  render: 'canvas',
   debug: 'none',
   speed: 1,
   showStats: true,
@@ -122,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function setup(config: {
   preset: string
   storage: string
+  render: string
   debug: string
   showStats: boolean
 }) {
@@ -162,12 +169,24 @@ function setup(config: {
     simple: () => new SimpleStorage(),
   }
   const storage = paramToStorage[config?.storage ?? currentConfig.storage]()
-  render = new Canvas2DRender(canvas, storage, {
-    vpWidth: canvas.width,
-    vpHeight: canvas.height,
-    bgColor: preset.config.bgColor ?? '#000000',
-    debug: config?.debug ?? undefined,
-  })
+
+  const paramsToRender: Record<(typeof RENDERS)[number]['id'], () => Render> = {
+    canvas: () =>
+      new Canvas2DRender(canvas, storage, {
+        vpWidth: canvas.width,
+        vpHeight: canvas.height,
+        bgColor: preset.config.bgColor ?? '#000000',
+        debug: config?.debug ?? undefined,
+      }),
+    webgl: () =>
+      new WebGLRender(canvas, storage, {
+        vpWidth: canvas.width,
+        vpHeight: canvas.height,
+        bgColor: preset.config.bgColor ?? '#000000',
+        debug: config?.debug ?? undefined,
+      }),
+  }
+  render = paramsToRender[config?.render ?? currentConfig.render]()
 
   simulation = new Simulation(
     storage,
@@ -222,6 +241,8 @@ function setup(config: {
     resizeObserver.disconnect()
     simulation.stop()
     appLoop.destroy()
+
+    canvas.replaceWith(canvas.cloneNode(false))
   }
 }
 
@@ -290,6 +311,7 @@ function handleOptionsChange(config: GeneralConfig) {
   if (
     config.preset !== currentConfig.preset ||
     config.storage !== currentConfig.storage ||
+    config.render !== currentConfig.render ||
     config.debug !== currentConfig.debug
   ) {
     cleanup?.()
@@ -297,6 +319,7 @@ function handleOptionsChange(config: GeneralConfig) {
 
     currentConfig.preset = config.preset
     currentConfig.storage = config.storage
+    currentConfig.render = config.render
     currentConfig.debug = config.debug
     shouldSave = true
   }
@@ -344,6 +367,7 @@ root.render(
       onChange: handleOptionsChange,
       presets: PRESETS,
       storages: STORAGES,
+      renders: RENDERS,
       debug: DEBUG,
       default: currentConfig,
     }}

@@ -14,6 +14,8 @@ export class WebGLRender {
   private gl: WebGLRenderingContext
   private viewport: Rect
   private programs: Map<Graphics['type'], WebGLProgram> = new Map()
+  private shaders: Set<WebGLShader> = new Set()
+  private buffers: Set<WebGLBuffer> = new Set()
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -70,6 +72,7 @@ export class WebGLRender {
 
     const positionBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
+    this.buffers.add(positionBuffer)
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
     gl.enable(gl.BLEND)
@@ -94,6 +97,17 @@ export class WebGLRender {
     for (const particle of this.storage) {
       this.render(particle.graphics)
     }
+  }
+
+  destroy() {
+    this.programs.forEach((program) => this.gl.deleteProgram(program))
+    this.programs.clear()
+
+    this.shaders.forEach((shader) => this.gl.deleteShader(shader))
+    this.shaders.clear()
+
+    this.buffers.forEach((buffer) => this.gl.deleteBuffer(buffer))
+    this.buffers.clear()
   }
 
   private render(graphics: Graphics[]) {
@@ -320,6 +334,8 @@ export class WebGLRender {
         this.gl.getShaderInfoLog(shader) ?? 'Error compiling shader',
       )
     }
+
+    this.shaders.add(shader)
 
     return shader
   }
