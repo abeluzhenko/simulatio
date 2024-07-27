@@ -6,7 +6,6 @@ import { Vector2, distance } from '../../math/Vector2'
 import { Rect } from '../../math/Rect'
 import { Config, defaultConfig } from './config'
 import { UI } from './ui'
-import { createColor } from '../../math/Color'
 
 export class ParticleLife implements Particle {
   private static _config = defaultConfig
@@ -108,33 +107,42 @@ export class ParticleLife implements Particle {
       const d = distance(this.position, other.position)
       const dx = other.position.x - this.position.x
       const dy = other.position.y - this.position.y
-      const minD = this.radius + other.radius
-      const g = ParticleLife._config.rules[this.kind]?.[other.kind] ?? 0
 
-      if (g !== 0 && d <= ParticleLife._config.forceRadius && d > minD) {
-        const f = (g * 1) / d
-
-        fx += f * dx
-        fy += f * dy
-      }
-      if (d <= minD) {
-        const f = 1 / d
+      const collisionDistance = this.radius + other.radius
+      if (d > 0 && d <= collisionDistance) {
+        const f =
+          (1 - d / collisionDistance) * ParticleLife._config.retractionForce
 
         fx -= f * dx
         fy -= f * dy
+      }
+
+      const socialForce =
+        ParticleLife._config.rules[this.kind]?.[other.kind] ?? 0
+      if (
+        socialForce !== 0 &&
+        d > collisionDistance &&
+        d <= ParticleLife._config.forceRadius
+      ) {
+        const f = (socialForce * 1) / d
+
+        fx += f * dx
+        fy += f * dy
       }
     }
 
     const gd = distance(this.position, this.gravityCenter)
     fx +=
       ((this.gravityCenter.x - this.position.x) / gd) *
-      ParticleLife._config.gravityDamping
+      ParticleLife._config.gravityForce
     fy +=
       ((this.gravityCenter.y - this.position.y) / gd) *
-      ParticleLife._config.gravityDamping
+      ParticleLife._config.gravityForce
 
-    this.velocity.x = (this.velocity.x + fx) * ParticleLife._config.damping
-    this.velocity.y = (this.velocity.y + fy) * ParticleLife._config.damping
+    this.velocity.x =
+      (this.velocity.x + fx) * (1.0 - ParticleLife._config.damping)
+    this.velocity.y =
+      (this.velocity.y + fy) * (1.0 - ParticleLife._config.damping)
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
 
@@ -143,15 +151,7 @@ export class ParticleLife implements Particle {
     this._forceRect.x = this.position.x - ParticleLife._config.forceRadius
     this._forceRect.y = this.position.y - ParticleLife._config.forceRadius
 
-    const sx = this.position.x / this.world.width
-    const sy = this.position.y / this.world.height
-    const r =
-      this.kind === 'red' ? 100 + Math.floor(sx * 155) : Math.floor(sx * 100)
-    const b =
-      this.kind === 'blue' ? 100 + Math.floor(sy * 155) : Math.floor(sy * 100)
-    const g = this.kind === 'green' ? 255 : 50
-
-    this.graphics[0].color = createColor(r, g, b, 1)
+    this.graphics[0].color = ParticleLife._config.rules[this.kind]?.color ?? 0
     this.graphics[0].radius = this.radius
     this.graphics[0].x = this.position.x
     this.graphics[0].y = this.position.y

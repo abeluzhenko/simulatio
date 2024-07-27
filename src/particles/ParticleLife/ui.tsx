@@ -16,8 +16,9 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
   const [maxRadius, setMaxRadius] = useState(defaultConfig.maxRadius)
   const [forceRadius, setForceRadius] = useState(defaultConfig.forceRadius)
   const [damping, setDamping] = useState(defaultConfig.damping)
-  const [gravityDamping, setGravityDamping] = useState(
-    defaultConfig.gravityDamping,
+  const [gravityForce, setGravityForce] = useState(defaultConfig.gravityForce)
+  const [retractionForce, setRetractionForce] = useState(
+    defaultConfig.retractionForce,
   )
   const [bgColor, setBgColor] = useState(defaultConfig.bgColor)
 
@@ -29,7 +30,8 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
       maxRadius,
       forceRadius,
       damping,
-      gravityDamping,
+      gravityForce,
+      retractionForce,
       bgColor,
     })
   }, [
@@ -38,7 +40,8 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
     maxRadius,
     forceRadius,
     damping,
-    gravityDamping,
+    gravityForce,
+    retractionForce,
     bgColor,
   ])
 
@@ -92,15 +95,28 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
         />
       </div>
       <div className="UI__option">
-        <span className="Option__title">G Damping</span>
+        <span className="Option__title">G Force</span>
         <Range
-          value={gravityDamping * 100}
+          value={gravityForce * 100}
           min={0}
           max={100}
           step={1}
-          onChange={(value) => setGravityDamping(mapRange(value, 0, 100, 0, 1))}
+          onChange={(value) => setGravityForce(mapRange(value, 0, 100, 0, 1))}
         />
       </div>
+      <div className="UI__option">
+        <span className="Option__title">R Force</span>
+        <Range
+          value={retractionForce * 10}
+          min={0}
+          max={100}
+          step={1}
+          onChange={(value) =>
+            setRetractionForce(mapRange(value, 0, 100, 0, 10))
+          }
+        />
+      </div>
+
       <div className="UI__option">
         <span className="Option__title">BG Color</span>
         <Color value={bgColor} onChange={(value) => setBgColor(value)} />
