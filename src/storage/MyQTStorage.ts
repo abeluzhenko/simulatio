@@ -69,6 +69,16 @@ export class MyQTStorage<Item extends StorageItem = StorageItem>
       return
     }
 
+    const node = this.itemToNode.get(item)
+    if (!node) {
+      return
+    }
+
+    if (containsRect(node.rect, rect)) {
+      copyRect(item.rect, rect)
+      return
+    }
+
     this.removeItem(item)
 
     copyRect(item.rect, rect)
