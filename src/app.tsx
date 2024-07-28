@@ -25,6 +25,7 @@ import { Darwin } from './particles/Darwin/particle'
 import { ParticleLife } from './particles/ParticleLife/particle'
 import { Render } from './render/Render'
 import { WebGLRender } from './render/WebGLRender'
+import { debounce } from './common/Debounce'
 
 declare global {
   interface Window {
@@ -118,6 +119,19 @@ const currentConfig = loadConfig<GeneralConfig>('general', {
   showStats: true,
   showConfig: true,
 })
+
+const saveConfig = debounce(function saveConfig<T>(key: string, config: T) {
+  localStorage.setItem(key, JSON.stringify(config))
+}, 200)
+
+function loadConfig<T>(key: string, defaultValue: T): T {
+  const storageConfig = localStorage.getItem(key)
+  if (!storageConfig) {
+    return defaultValue
+  }
+
+  return Object.assign({}, defaultValue, JSON.parse(storageConfig))
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   setup(currentConfig)
@@ -243,6 +257,7 @@ function setup(config: {
     appLoop.destroy()
 
     canvas.replaceWith(canvas.cloneNode(false))
+    saveConfig.cancel()
   }
 }
 
@@ -344,19 +359,6 @@ function handleOptionsChange(config: GeneralConfig) {
   if (shouldSave) {
     saveConfig('general', currentConfig)
   }
-}
-
-function saveConfig<T>(key: string, config: T) {
-  localStorage.setItem(key, JSON.stringify(config))
-}
-
-function loadConfig<T>(key: string, defaultValue: T): T {
-  const storageConfig = localStorage.getItem(key)
-  if (!storageConfig) {
-    return defaultValue
-  }
-
-  return Object.assign({}, defaultValue, JSON.parse(storageConfig))
 }
 
 const ui = document.getElementById('ui')!
