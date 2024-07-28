@@ -54,3 +54,19 @@ export const defaultConfig: Config = {
     },
   },
 }
+
+export function createRandomRules(): Record<string, Record<string, number>> {
+  const rules: Record<string, Record<string, number>> = {}
+  // @todo: use abstract names
+  const colors = ['red', 'green', 'blue', 'yellow']
+  for (const color of colors) {
+    const rule: Record<string, number> = {
+      color: Math.random() * 0xffffffff,
+    }
+    for (const otherColor of colors) {
+      rule[otherColor] = Math.random() * 2 - 1
+    }
+    rules[color] = rule
+  }
+  return rules
+}

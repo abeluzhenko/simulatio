@@ -4,7 +4,7 @@ import { Range } from '../../ui/components/Range/Range'
 import { Color } from '../../ui/components/Color/Color'
 import { mapRange } from '../../math/common'
 import { colorToRGBA } from '../../math/Color'
-import { Config } from './config'
+import { Config, createRandomRules } from './config'
 import './ui.css'
 
 type Props = {
@@ -50,6 +50,10 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
     },
     [setRules],
   )
+
+  const randomizeRules = useCallback(() => {
+    setRules(createRandomRules())
+  }, [setRules])
 
   useEffect(() => {
     onChange({
@@ -155,7 +159,7 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
 
       {Object.entries(rules).map(([key, value]) => {
         return (
-          <div className="ParticleLife__group" key={key}>
+          <div className="ParticleLife__group" key={`${key}-${value.color}`}>
             <div className="UI__option">
               <span className="Option__title">{key}</span>
               <Color
@@ -168,6 +172,12 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
           </div>
         )
       })}
+
+      <div className="UI__group">
+        <button className="UI__button" onClick={randomizeRules}>
+          Randomize
+        </button>
+      </div>
     </div>
   )
 }

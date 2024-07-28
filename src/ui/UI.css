@@ -100,3 +100,21 @@
 .UI__toggle--opened::after {
   content: '►';
 }
+
+.UI__button {
+  background: var(--color-quaternary);
+  color: var(--color-primary);
+  font-size: var(--size-medium);
+  padding: 4px 8px;
+  border: 2px solid var(--color-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.UI__button:hover {
+  background: var(--color-secondary);
+}
+
+.UI__button:active {
+  background: var(--color-tertiary);
+}
