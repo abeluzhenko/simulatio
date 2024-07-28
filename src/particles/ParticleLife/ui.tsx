@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { Number } from '../../ui/components/Number/Number'
 import { Range } from '../../ui/components/Range/Range'
 import { Color } from '../../ui/components/Color/Color'
@@ -25,29 +25,31 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
   const [bgColor, setBgColor] = useState(defaultConfig.bgColor)
   const [rules, setRules] = useState(defaultConfig.rules)
 
-  const handleRuleChange = (
-    from: keyof Config['rules'],
-    to: keyof Config['rules'],
-    value: number,
-  ) => {
-    setRules((prev) => ({
-      ...prev,
-      [from]: {
-        ...prev[from],
-        [to]: value,
-      },
-    }))
-  }
+  const handleRuleChange = useCallback(
+    (from: keyof Config['rules'], to: keyof Config['rules'], value: number) => {
+      setRules((prev) => ({
+        ...prev,
+        [from]: {
+          ...prev[from],
+          [to]: value,
+        },
+      }))
+    },
+    [setRules],
+  )
 
-  const handleColorChange = (rule: keyof Config['rules'], color: number) => {
-    setRules((prev) => ({
-      ...prev,
-      [rule]: {
-        ...prev[rule],
-        color,
-      },
-    }))
-  }
+  const handleColorChange = useCallback(
+    (rule: keyof Config['rules'], color: number) => {
+      setRules((prev) => ({
+        ...prev,
+        [rule]: {
+          ...prev[rule],
+          color,
+        },
+      }))
+    },
+    [setRules],
+  )
 
   useEffect(() => {
     onChange({
@@ -156,7 +158,10 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
           <div className="ParticleLife__group" key={key}>
             <div className="UI__option">
               <span className="Option__title">{key}</span>
-              <Color value={colorToRGBA(value.color)} onChange={() => {}} />
+              <Color
+                value={value.color}
+                onChange={(value) => handleColorChange(key, value)}
+              />
             </div>
 
             <Rule from={key} rules={rules} onChange={handleRuleChange} />

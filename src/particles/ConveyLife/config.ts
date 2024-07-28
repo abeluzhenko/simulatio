@@ -1,6 +1,6 @@
 export type Config = {
   count: number
-  bgColor: string
+  bgColor: number
   minCount: number
   maxCount: number
   stepTimeMs: number
@@ -9,7 +9,7 @@ export type Config = {
 
 export const defaultConfig: Config = {
   count: 10_000,
-  bgColor: 'rgba(0, 0, 0, 0.1)',
+  bgColor: 0x000000ff,
   minCount: 10_000,
   maxCount: 10_000,
   stepTimeMs: 80,

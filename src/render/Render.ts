@@ -11,7 +11,7 @@ export type RenderItem = {
 export type RenderConfig = {
   vpHeight: number
   vpWidth: number
-  bgColor?: string
+  bgColor?: number
   debug?: string
 }
 

@@ -290,10 +290,10 @@ export class WebGLRender {
     if (colorUniformLocation !== -1) {
       this.gl.uniform4f(
         colorUniformLocation,
-        getRed(graphics.color),
-        getGreen(graphics.color),
-        getBlue(graphics.color),
-        getAlpha(graphics.color),
+        getRed(graphics.color) / 0xff,
+        getGreen(graphics.color) / 0xff,
+        getBlue(graphics.color) / 0xff,
+        getAlpha(graphics.color) / 0xff,
       )
     }
 
@@ -312,10 +312,10 @@ export class WebGLRender {
     if (strokeColorUniformLocation !== -1) {
       this.gl.uniform4f(
         strokeColorUniformLocation,
-        getRed(graphics.strokeColor),
-        getGreen(graphics.strokeColor),
-        getBlue(graphics.strokeColor),
-        getAlpha(graphics.strokeColor),
+        getRed(graphics.strokeColor) / 0xff,
+        getGreen(graphics.strokeColor) / 0xff,
+        getBlue(graphics.strokeColor) / 0xff,
+        getAlpha(graphics.strokeColor) / 0xff,
       )
     }
   }

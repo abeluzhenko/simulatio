@@ -19,17 +19,33 @@ export function createColor(r: number, g: number, b: number, a: number): Color {
 }
 
 export function getRed(color: Color): number {
-  return ((color >> 24) & 0xff) / 0xff
+  return (color >> 24) & 0xff
 }
 
 export function getGreen(color: Color): number {
-  return ((color >> 16) & 0xff) / 0xff
+  return (color >> 16) & 0xff
 }
 
 export function getBlue(color: Color): number {
-  return ((color >> 8) & 0xff) / 0xff
+  return (color >> 8) & 0xff
 }
 
 export function getAlpha(color: Color): number {
-  return (color & 0xff) / 0xff
+  return color & 0xff
+}
+
+export function setRed(color: Color, value: number): Color {
+  return ((value & 0xff) << 24) | (color & 0x00ffffff)
+}
+
+export function setGreen(color: Color, value: number): Color {
+  return ((value & 0xff) << 16) | (color & 0xff00ffff)
+}
+
+export function setBlue(color: Color, value: number): Color {
+  return ((value & 0xff) << 8) | (color & 0xffff00ff)
+}
+
+export function setAlpha(color: Color, value: number): Color {
+  return (value & 0xff) | (color & 0xffffff00)
 }

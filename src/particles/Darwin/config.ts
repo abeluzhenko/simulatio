@@ -1,6 +1,6 @@
 export type Config = {
   count: number
-  bgColor: string
+  bgColor: number
   maxCount: number
   minCount: number
   maxSpeed: number
@@ -13,7 +13,7 @@ export type Config = {
 
 export const defaultConfig: Config = {
   count: 4_000,
-  bgColor: 'rgba(0, 0, 0, 0.05)',
+  bgColor: 0x000000ff,
   maxCount: 6_000,
   minCount: 1_000,
   maxSpeed: 5,

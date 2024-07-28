@@ -34,7 +34,7 @@ declare global {
 
 type CommonConfig = {
   count: number
-  bgColor: string
+  bgColor: number
 }
 
 const PRESETS = [
@@ -92,7 +92,7 @@ const SIMULATION_FPS = 120
 const SIMULATIONS_UI = Object.entries(presets).reduce((acc, [key, value]) => {
   acc[key] = {
     Simulation: value.ui,
-    onChange: (config: { count: number; bgColor: string }) => {
+    onChange: (config: { count: number; bgColor: number }) => {
       if (value.config.count !== config.count) {
         simulation.setPopulation(config.count)
       }
@@ -175,14 +175,14 @@ function setup(config: {
       new Canvas2DRender(canvas, storage, {
         vpWidth: canvas.width,
         vpHeight: canvas.height,
-        bgColor: preset.config.bgColor ?? '#000000',
+        bgColor: preset.config.bgColor ?? 0x000000ff,
         debug: config?.debug ?? undefined,
       }),
     webgl: () =>
       new WebGLRender(canvas, storage, {
         vpWidth: canvas.width,
         vpHeight: canvas.height,
-        bgColor: preset.config.bgColor ?? '#000000',
+        bgColor: preset.config.bgColor ?? 0x000000ff,
         debug: config?.debug ?? undefined,
       }),
   }

@@ -35,7 +35,7 @@ export class Canvas2DRender implements Render {
 
   tick() {
     if (this.config.bgColor) {
-      this.ctx.fillStyle = this.config.bgColor
+      this.ctx.fillStyle = colorToRGBA(this.config.bgColor)
       this.ctx.fillRect(
         this.viewport.x,
         this.viewport.y,
