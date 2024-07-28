@@ -272,7 +272,7 @@ function togglePerfStats(
   statsCanvas.width = 200
   statsCanvas.height = 100
   statsCanvas.style.position = 'absolute'
-  statsCanvas.style.top = '0'
+  statsCanvas.style.bottom = '0'
   statsCanvas.style.left = '0'
   statsCanvas.style.backgroundColor = 'rgba(0, 0, 0, 1)'
   document.body.appendChild(statsCanvas)
