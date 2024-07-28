@@ -6,7 +6,6 @@
   top: 0;
   right: 0;
   height: 100%;
-  overflow: auto;
 
   --color-primary: #00f200;
   --color-secondary: #05a000;
@@ -37,6 +36,12 @@
 .UI__sidebar input {
   color: var(--color-primary);
   font-family: 'Verdana', sans-serif;
+}
+
+.UI__content {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
 }
 
 .UI__group {

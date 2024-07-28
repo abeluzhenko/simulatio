@@ -109,54 +109,56 @@ export const UI: FC<Props> = ({ general, simulation }) => {
         onClick={() => setOpened(!opened)}
         value={opened ? 'Close' : 'Open'}
       />
-      <div className="UI__group">
-        <div className="UI__option">
-          <span className="Option__title">Speed</span>
-          <Range
-            min={0}
-            max={100}
-            step={1}
-            value={speed * 100}
-            onChange={(value) => setSpeed(mapRange(value, 0, 100, 0, 1))}
-          />
+      <div className="UI__content">
+        <div className="UI__group">
+          <div className="UI__option">
+            <span className="Option__title">Speed</span>
+            <Range
+              min={0}
+              max={100}
+              step={1}
+              value={speed * 100}
+              onChange={(value) => setSpeed(mapRange(value, 0, 100, 0, 1))}
+            />
+          </div>
+          <div className="UI__option">
+            <span className="Option__title">Render</span>
+            <Select
+              value={render}
+              options={general.renders}
+              onChange={handleRenderChange}
+            />
+          </div>
+          <div className="UI__option">
+            <span className="Option__title">Preset</span>
+            <Select
+              value={preset}
+              options={general.presets}
+              onChange={handlePresetChange}
+            />
+          </div>
+          <div className="UI__option">
+            <span className="Option__title">Storage</span>
+            <Select
+              value={storage}
+              options={general.storages}
+              onChange={handleStorageChange}
+            />
+          </div>
+          <div className="UI__option">
+            <span className="Option__title">Debug</span>
+            <Select value={debug} options={general.debug} onChange={setDebug} />
+          </div>
+          <div className="UI__option">
+            <span className="Option__title">Show stats</span>
+            <Switch value={showStats} onChange={setShowStats} />
+          </div>
         </div>
-        <div className="UI__option">
-          <span className="Option__title">Render</span>
-          <Select
-            value={render}
-            options={general.renders}
-            onChange={handleRenderChange}
-          />
-        </div>
-        <div className="UI__option">
-          <span className="Option__title">Preset</span>
-          <Select
-            value={preset}
-            options={general.presets}
-            onChange={handlePresetChange}
-          />
-        </div>
-        <div className="UI__option">
-          <span className="Option__title">Storage</span>
-          <Select
-            value={storage}
-            options={general.storages}
-            onChange={handleStorageChange}
-          />
-        </div>
-        <div className="UI__option">
-          <span className="Option__title">Debug</span>
-          <Select value={debug} options={general.debug} onChange={setDebug} />
-        </div>
-        <div className="UI__option">
-          <span className="Option__title">Show stats</span>
-          <Switch value={showStats} onChange={setShowStats} />
-        </div>
+        <Simulation
+          defaultConfig={simulationDefaultConfig}
+          onChange={onSimulationConfigChange}
+        />
       </div>
-      <Simulation
-        defaultConfig={simulationDefaultConfig}
-        onChange={onSimulationConfigChange}
-      />
     </div>
   )
 }
