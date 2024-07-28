@@ -2,7 +2,6 @@ import React, { useState, useEffect, FC } from 'react'
 import './Color.css'
 import { Range } from '../Range/Range'
 import { mapRange } from '../../../math/common'
-import cx from 'classnames'
 
 interface Props {
   value: string
@@ -18,7 +17,10 @@ interface RGBA {
 
 const FALLBACK_COLOR: RGBA = { r: 0, g: 0, b: 0, a: 1 }
 
-const parseRGBA = (rgbaString: string, fallback: RGBA): RGBA => {
+export function parseRGBA(
+  rgbaString: string,
+  fallback: RGBA = FALLBACK_COLOR,
+): RGBA {
   const rgbaRegex = /^rgba\((\d+),\s*(\d+),\s*(\d+),\s*(\d*\.?\d+)\)$/
   const match = rgbaString.match(rgbaRegex)
   if (match) {
@@ -32,10 +34,15 @@ const parseRGBA = (rgbaString: string, fallback: RGBA): RGBA => {
   return fallback
 }
 
-const toRGBAString = (color: RGBA): string => {
+function toRGBAString(color: RGBA): string {
   return `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`
 }
 
+/*
+ * @todo:
+ * * refactor using integer values
+ * *
+ */
 export const Color: FC<Props> = ({ value, onChange }) => {
   const [color, setColor] = useState<RGBA>(parseRGBA(value, FALLBACK_COLOR))
   const [isFolded, setIsFolded] = useState(true)

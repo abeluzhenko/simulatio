@@ -3,7 +3,9 @@ import { Number } from '../../ui/components/Number/Number'
 import { Range } from '../../ui/components/Range/Range'
 import { Color } from '../../ui/components/Color/Color'
 import { mapRange } from '../../math/common'
+import { colorToRGBA } from '../../math/Color'
 import { Config } from './config'
+import './ui.css'
 
 type Props = {
   defaultConfig: Config
@@ -21,6 +23,31 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
     defaultConfig.retractionForce,
   )
   const [bgColor, setBgColor] = useState(defaultConfig.bgColor)
+  const [rules, setRules] = useState(defaultConfig.rules)
+
+  const handleRuleChange = (
+    from: keyof Config['rules'],
+    to: keyof Config['rules'],
+    value: number,
+  ) => {
+    setRules((prev) => ({
+      ...prev,
+      [from]: {
+        ...prev[from],
+        [to]: value,
+      },
+    }))
+  }
+
+  const handleColorChange = (rule: keyof Config['rules'], color: number) => {
+    setRules((prev) => ({
+      ...prev,
+      [rule]: {
+        ...prev[rule],
+        color,
+      },
+    }))
+  }
 
   useEffect(() => {
     onChange({
@@ -32,6 +59,7 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
       damping,
       gravityForce,
       retractionForce,
+      rules,
       bgColor,
     })
   }, [
@@ -42,6 +70,7 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
     damping,
     gravityForce,
     retractionForce,
+    rules,
     bgColor,
   ])
 
@@ -62,7 +91,7 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
         <Number
           value={minRadius}
           min={1}
-          max={defaultConfig.maxRadius}
+          max={maxRadius}
           onChange={(value) => setMinRadius(value)}
         />
       </div>
@@ -70,7 +99,7 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
         <span className="Option__title">Max Radius</span>
         <Number
           value={maxRadius}
-          min={defaultConfig.minRadius}
+          min={minRadius}
           max={100}
           onChange={(value) => setMaxRadius(value)}
         />
@@ -121,6 +150,60 @@ export const UI: FC<Props> = ({ onChange, defaultConfig }) => {
         <span className="Option__title">BG Color</span>
         <Color value={bgColor} onChange={(value) => setBgColor(value)} />
       </div>
+
+      {Object.entries(rules).map(([key, value]) => {
+        return (
+          <div className="ParticleLife__group" key={key}>
+            <div className="UI__option">
+              <span className="Option__title">{key}</span>
+              <Color value={colorToRGBA(value.color)} onChange={() => {}} />
+            </div>
+
+            <Rule from={key} rules={rules} onChange={handleRuleChange} />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+const Rule: FC<{
+  from: keyof Config['rules']
+  rules: Config['rules']
+  onChange: (
+    from: keyof Config['rules'],
+    to: keyof Config['rules'],
+    value: number,
+  ) => void
+}> = ({ from, rules, onChange }) => {
+  return (
+    <div className="ParticleLife__group">
+      {Object.entries(rules).map(([to]) => {
+        return (
+          <div className="UI__option" key={`${from}-${to}`}>
+            <span className="Option__title-group">
+              <span
+                className="ParticleLife__color"
+                style={{ background: colorToRGBA(rules[from].color) }}
+              />
+              &nbsp;►&nbsp;
+              <span
+                className="ParticleLife__color"
+                style={{ background: colorToRGBA(rules[to].color) }}
+              />
+            </span>
+            <Range
+              value={rules[from][to] * 100}
+              min={-100}
+              max={100}
+              step={1}
+              onChange={(value) =>
+                onChange(from, to, mapRange(value, -100, 100, -1, 1))
+              }
+            />
+          </div>
+        )
+      })}
     </div>
   )
 }

@@ -9,7 +9,6 @@ export type Config = {
   damping: number
   gravityForce: number
   retractionForce: number
-  kinds: string[]
   rules: Record<string, Record<string, number>>
 }
 
@@ -24,7 +23,6 @@ export const defaultConfig: Config = {
   damping: 0.32,
   gravityForce: 0.5,
   retractionForce: 2.0,
-  kinds: ['red', 'green', 'blue', 'yellow'],
   rules: {
     red: {
       color: 0xff0000ff,

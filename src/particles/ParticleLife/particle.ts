@@ -23,7 +23,7 @@ export class ParticleLife implements Particle {
   private radius: number
   private gravityCenter: Vector2
 
-  kind: Config['kinds'][number]
+  kind: keyof Config['rules']
 
   private _rect: Rect
   private _forceRect: Rect
@@ -48,10 +48,8 @@ export class ParticleLife implements Particle {
     private storage: Storage<ParticleLife>,
     private world: World,
   ) {
-    this.kind =
-      ParticleLife._config.kinds[
-        Math.floor(Random.next() * ParticleLife._config.kinds.length)
-      ]
+    const kinds = Object.keys(ParticleLife._config.rules)
+    this.kind = kinds[Math.floor(Random.next() * kinds.length)]
     this.position = {
       x: Random.next() * world.width,
       y: Random.next() * world.height,

@@ -1,0 +1,13 @@
+.ParticleLife__group {
+  display: flex;
+  flex-direction: column;
+}
+
+.ParticleLife__color {
+  --preview-size: 16px;
+
+  width: var(--preview-size);
+  height: var(--preview-size);
+  border: 2px solid var(--color-secondary);
+  border-radius: 4px;
+}

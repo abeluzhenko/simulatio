@@ -6,6 +6,7 @@
   top: 0;
   right: 0;
   height: 100%;
+  overflow: auto;
 
   --color-primary: #00f200;
   --color-secondary: #05a000;
@@ -55,6 +56,11 @@
 
 .Option__title {
   align-self: center;
+}
+
+.Option__title-group {
+  display: flex;
+  align-items: center;
 }
 
 .UI__toggle {
