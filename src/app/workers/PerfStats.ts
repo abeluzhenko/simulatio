@@ -79,6 +79,7 @@ function addFrame(data: Frame) {
 
   context.strokeStyle = '#00ff00'
   context.setLineDash([2, 2])
+  context.beginPath()
   context.moveTo(0, height - FRAME_TIME * ratio)
   context.lineTo(width, height - FRAME_TIME * ratio)
   context.stroke()
