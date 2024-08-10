@@ -8,7 +8,6 @@ const { perfStart, perfEnd } = require('./common')
 
 let result = []
 
-const count = 100_000
 const iterations = 10_000
 const nearestCount = 100
 
@@ -18,23 +17,14 @@ const storage = new SimpleQTStorage({
   width: AREA_SIZE,
   height: AREA_SIZE,
 })
-const testData = Array.from({ length: count }, (_, id) => {
-  const rect = generateRandomRect()
-  return { id, rect }
-})
+const testData = require('./randomData.json')
+const count = testData.length
 
 perfStart(`Inserting ${count} rectangles...`)
 testData.forEach((item) => {
   storage.add(item.id, item)
 })
 perfEnd(`Total insertion time:`)
-
-perfStart(`Updating ${count} rectangles...`)
-testData.forEach((item) => {
-  const newRect = generateRandomRect()
-  storage.update(item.id, newRect)
-})
-perfEnd(`Total update time:`)
 
 perfStart(`Querying intersecting rectangles ${iterations} times...`)
 for (let i = 0; i < iterations; i++) {
@@ -49,6 +39,13 @@ for (let i = 0; i < iterations; i++) {
   result = Array.from(storage.nearest(point, nearestCount))
 }
 perfEnd(`Total nearest querying time:`, result.length)
+
+perfStart(`Updating ${count} rectangles...`)
+testData.forEach((item) => {
+  const newRect = generateRandomRect()
+  storage.update(item.id, newRect)
+})
+perfEnd(`Total update time:`)
 
 perfStart(`Deleting ${count} rectangles...`)
 testData.forEach((item) => {
