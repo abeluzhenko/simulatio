@@ -16,6 +16,8 @@ import {
 } from './metric/Metric'
 import { Canvas2DRender } from './render/Canvas2DRender'
 import { Simulation } from './simulation/Simulation'
+import { ECSSimulation } from './simulation/ECSSimulation'
+import { ECSRenderAdapter } from './render/ECSRenderAdapter'
 import { Random } from './math/Random'
 import { Particle } from './particles/Particle'
 import { SimpleCollision } from './particles/SimpleCollision/particle'
@@ -23,9 +25,12 @@ import { Polygons } from './particles/Polygons/particle'
 import { ConveyLife } from './particles/ConveyLife/particle'
 import { Darwin } from './particles/Darwin/particle'
 import { ParticleLife } from './particles/ParticleLife/particle'
+import { ParticleLifeFeature } from './particles/ParticleLife/ParticleLifeFeature'
+import { defaultConfig as particleLifeDefaultConfig } from './particles/ParticleLife/config'
 import { Render } from './render/Render'
 import { WebGLRender } from './render/WebGLRender'
 import { debounce } from './common/Debounce'
+import { Feature } from './ecs/Feature'
 
 declare global {
   interface Window {
@@ -44,6 +49,7 @@ const PRESETS = [
   { id: 'polygons', value: 'Polygons' },
   { id: 'conveyLife', value: 'Convey Life' },
   { id: 'particleLife', value: 'Particle Life' },
+  { id: 'particleLifeECS', value: 'Particle Life (ECS)' },
 ] as const
 
 const STORAGES = [
@@ -65,26 +71,48 @@ const DEBUG = [
 
 let cleanup: () => void | undefined
 
+type OOPPreset = {
+  type: 'oop'
+  create: ItemFactory<any>
+  config: CommonConfig
+  updateConfig: (config: CommonConfig & any) => void
+  ui: SimulationFC<any>
+}
+
+type ECSPreset = {
+  type: 'ecs'
+  feature: Feature
+  config: CommonConfig
+  updateConfig: (config: CommonConfig & any) => void
+  ui: SimulationFC<any>
+}
+
+type PresetConfig = OOPPreset | ECSPreset
+
 const presets: {
-  [Key in (typeof PRESETS)[number]['id']]: {
-    create: ItemFactory<any>
-    config: CommonConfig
-    updateConfig: (config: CommonConfig & any) => void
-    ui: SimulationFC<any>
-  }
+  [Key in (typeof PRESETS)[number]['id']]: PresetConfig
 } = {
   simpleCollision: SimpleCollision,
   darwin: Darwin,
   polygons: Polygons,
   conveyLife: ConveyLife,
   particleLife: ParticleLife,
+  particleLifeECS: {
+    type: 'ecs',
+    feature: new ParticleLifeFeature(),
+    config: particleLifeDefaultConfig,
+    updateConfig: () => {
+      // ECS config updates are handled differently - config is passed to feature at runtime
+    },
+    ui: ParticleLife.ui, // Reuse the same UI as OOP ParticleLife
+  },
 }
 Object.entries(presets).forEach(([key, value]) => {
   value.updateConfig(loadConfig(key, value.config))
 })
 
 let statsWorker: Worker | undefined
-let simulation: Simulation<Particle>
+let simulation: Simulation<Particle> | ECSSimulation
 let render: Render
 const metric = new Metric({ framesInBuffer: 20, bufferSize: 100 })
 
@@ -184,37 +212,84 @@ function setup(config: {
   }
   const storage = paramToStorage[config?.storage ?? currentConfig.storage]()
 
-  const paramsToRender: Record<(typeof RENDERS)[number]['id'], () => Render> = {
-    canvas: () =>
-      new Canvas2DRender(canvas, storage, {
-        vpWidth: canvas.width,
-        vpHeight: canvas.height,
-        bgColor: preset.config.bgColor ?? 0x000000ff,
-        debug: config?.debug ?? undefined,
-      }),
-    webgl: () =>
-      new WebGLRender(canvas, storage, {
-        vpWidth: canvas.width,
-        vpHeight: canvas.height,
-        bgColor: preset.config.bgColor ?? 0x000000ff,
-        debug: config?.debug ?? undefined,
-      }),
-  }
-  render = paramsToRender[config?.render ?? currentConfig.render]()
-
-  simulation = new Simulation(
-    storage,
-    {
-      width: canvas.width,
-      height: canvas.height,
-      particleCount: preset.config.count,
-    },
-    {
+  // Handle ECS vs OOP preset differences
+  if (preset.type === 'ecs') {
+    // ECS Preset: Create ECSSimulation and use ECSRenderAdapter
+    simulation = new ECSSimulation({
       maxFPS: SIMULATION_FPS,
       speed: currentConfig.speed,
-      factory: preset.create,
-    },
-  )
+      worldBounds: {
+        x: 0,
+        y: 0,
+        width: canvas.width,
+        height: canvas.height,
+      },
+      storage: storage,
+      feature: preset.feature,
+      featureContext: {
+        config: preset.config,
+      },
+    })
+
+    const renderAdapter = new ECSRenderAdapter(
+      simulation.getWorld(),
+      simulation.getSpatialSystem(),
+    )
+
+    const paramsToRender: Record<(typeof RENDERS)[number]['id'], () => Render> =
+      {
+        canvas: () =>
+          new Canvas2DRender(canvas, renderAdapter, {
+            vpWidth: canvas.width,
+            vpHeight: canvas.height,
+            bgColor: preset.config.bgColor ?? 0x000000ff,
+            debug: config?.debug ?? undefined,
+          }),
+        webgl: () =>
+          new WebGLRender(canvas, renderAdapter, {
+            vpWidth: canvas.width,
+            vpHeight: canvas.height,
+            bgColor: preset.config.bgColor ?? 0x000000ff,
+            debug: config?.debug ?? undefined,
+          }),
+      }
+    render = paramsToRender[config?.render ?? currentConfig.render]()
+  } else {
+    // OOP Preset: Traditional Simulation
+    const paramsToRender: Record<(typeof RENDERS)[number]['id'], () => Render> =
+      {
+        canvas: () =>
+          new Canvas2DRender(canvas, storage, {
+            vpWidth: canvas.width,
+            vpHeight: canvas.height,
+            bgColor: preset.config.bgColor ?? 0x000000ff,
+            debug: config?.debug ?? undefined,
+          }),
+        webgl: () =>
+          new WebGLRender(canvas, storage, {
+            vpWidth: canvas.width,
+            vpHeight: canvas.height,
+            bgColor: preset.config.bgColor ?? 0x000000ff,
+            debug: config?.debug ?? undefined,
+          }),
+      }
+    render = paramsToRender[config?.render ?? currentConfig.render]()
+
+    simulation = new Simulation(
+      storage,
+      {
+        width: canvas.width,
+        height: canvas.height,
+        particleCount: preset.config.count,
+      },
+      {
+        maxFPS: SIMULATION_FPS,
+        speed: currentConfig.speed,
+        factory: preset.create,
+      },
+    )
+  }
+
   const appLoop = new AppLoop(render, simulation, metric)
 
   const resizeObserver = new ResizeObserver(() => {
@@ -254,6 +329,12 @@ function setup(config: {
 
     resizeObserver.disconnect()
     simulation.stop()
+
+    // ECS simulations need additional cleanup
+    if (simulation instanceof ECSSimulation) {
+      simulation.destroy()
+    }
+
     appLoop.destroy()
 
     canvas.replaceWith(canvas.cloneNode(false))

@@ -89,6 +89,21 @@ describe('SimpleQTStorage', () => {
       expect(result).toEqual([item2])
     })
 
+    it('should return items with the same rect', () => {
+      const storage = new SimpleQTStorage(WORLD_BBOX)
+      const item1 = { id: 0, rect: { x: 0, y: 0, width: 10, height: 10 } }
+      const item2 = { id: 1, rect: { x: 0, y: 0, width: 10, height: 10 } }
+
+      storage.add(item1.id, item1)
+      storage.add(item2.id, item2)
+
+      const result = Array.from(
+        storage.intersecting({ x: 0, y: 0, width: 10, height: 10 }),
+      )
+      expect(result).toContain(item1)
+      expect(result).toContain(item2)
+    })
+
     it('should return empty array if there are no intersections', () => {
       const storage = new SimpleQTStorage(WORLD_BBOX)
       const item1 = { id: 0, rect: { x: 0, y: 0, width: 4, height: 4 } }

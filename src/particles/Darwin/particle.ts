@@ -9,6 +9,7 @@ import { UI } from './ui'
 import { createColor } from '../../math/Color'
 
 export class Darwin implements Particle {
+  static type = 'oop' as const
   private static _config = defaultConfig
 
   static get config() {

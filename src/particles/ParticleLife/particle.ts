@@ -8,6 +8,7 @@ import { Config, defaultConfig } from './config'
 import { UI } from './ui'
 
 export class ParticleLife implements Particle {
+  static type = 'oop' as const
   private static _config = defaultConfig
 
   static get config() {
@@ -81,19 +82,6 @@ export class ParticleLife implements Particle {
   }
 
   update() {
-    if (this.position.x < 0) {
-      this.position.x = this.world.width - 1
-    }
-    if (this.position.x > this.world.width) {
-      this.position.x = 1
-    }
-    if (this.position.y < 0) {
-      this.position.y = this.world.height - 1
-    }
-    if (this.position.y > this.world.height) {
-      this.position.y = 1
-    }
-
     const intersecting = this.storage.intersecting(this._forceRect)
     let fx = 0
     let fy = 0
@@ -130,12 +118,14 @@ export class ParticleLife implements Particle {
     }
 
     const gd = distance(this.position, this.gravityCenter)
-    fx +=
-      ((this.gravityCenter.x - this.position.x) / gd) *
-      ParticleLife._config.gravityForce
-    fy +=
-      ((this.gravityCenter.y - this.position.y) / gd) *
-      ParticleLife._config.gravityForce
+    if (gd > 0) {
+      fx +=
+        ((this.gravityCenter.x - this.position.x) / gd) *
+        ParticleLife._config.gravityForce
+      fy +=
+        ((this.gravityCenter.y - this.position.y) / gd) *
+        ParticleLife._config.gravityForce
+    }
 
     this.velocity.x =
       (this.velocity.x + fx) * (1.0 - ParticleLife._config.damping)
@@ -143,6 +133,18 @@ export class ParticleLife implements Particle {
       (this.velocity.y + fy) * (1.0 - ParticleLife._config.damping)
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
+
+    // Boundary wrapping (toroidal topology)
+    if (this.position.x < 0) {
+      this.position.x = this.world.width - (0 - this.position.x)
+    } else if (this.position.x > this.world.width) {
+      this.position.x = 0 + (this.position.x - this.world.width)
+    }
+    if (this.position.y < 0) {
+      this.position.y = this.world.height - (0 - this.position.y)
+    } else if (this.position.y > this.world.height) {
+      this.position.y = 0 + (this.position.y - this.world.height)
+    }
 
     this._rect.x = this.position.x - this.radius
     this._rect.y = this.position.y - this.radius

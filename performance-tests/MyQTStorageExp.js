@@ -1,18 +1,24 @@
-const { RBushStorage } = require('../src/storage/RBushStorage')
+const { MyQTStorage } = require('../src/storage/MyQTStorageExp')
 const {
   generateRandomRect,
   generateRandomPoint,
+  AREA_SIZE,
 } = require('../src/storage/__tests__/testDataGenerator')
 const { perfStart, perfEnd } = require('./common')
 
 let result = []
 
 const iterations = 10_000
-const nearestCount = 100
 const updateIterations = 100
+const nearestCount = 100
 
-const storage = new RBushStorage()
-const testData = require('./randomData.json')
+const storage = new MyQTStorage({
+  x: 0,
+  y: 0,
+  width: AREA_SIZE,
+  height: AREA_SIZE,
+})
+const { testData, updateData, queriesData } = require('./randomData.json')
 const count = testData.length
 
 perfStart(`Inserting ${count} rectangles...`)
@@ -26,21 +32,23 @@ for (let i = 0; i < iterations; i++) {
   const rect = generateRandomRect()
   result = Array.from(storage.intersecting(rect))
 }
-perfEnd(`Total intersecting querying time:`, result.length)
+for (const query of queriesData) {
+  result = Array.from(storage.intersecting(query))
+}
+perfEnd(`Total intersecting querying time:`, iterations)
 
 perfStart(`Querying ${nearestCount} nearest rectangles ${iterations} times...`)
 for (let i = 0; i < iterations; i++) {
   const point = generateRandomPoint()
   result = Array.from(storage.nearest(point, nearestCount))
 }
-perfEnd(`Total nearest querying time:`, result.length)
+perfEnd(`Total nearest querying time:`, iterations)
 
 perfStart(`Updating ${count} rectangles...`)
 for (let i = 0; i < updateIterations; i++) {
-  testData.forEach((item) => {
-    const newRect = generateRandomRect()
-    storage.update(item.id, newRect)
-  })
+  for (const newRect of updateData) {
+    storage.update(newRect.id, newRect)
+  }
 }
 perfEnd(`Total update time:`)
 

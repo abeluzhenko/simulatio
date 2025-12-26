@@ -8,9 +8,14 @@ function perfStart(message) {
   console.log(message)
   start = performance.now()
 }
-function perfEnd(message, debug = '') {
+function perfEnd(message, count) {
   end = performance.now()
-  console.log(message, `${(end - start).toFixed(2)}ms`, debug)
+  const time = end - start
+  console.log(
+    message,
+    `${time.toFixed(2)}ms`,
+    count ? `, average: ${(time / count).toFixed(2)}ms` : '',
+  )
 }
 
 module.exports = {

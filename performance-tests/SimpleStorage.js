@@ -9,6 +9,7 @@ let result = []
 
 const iterations = 10_000
 const nearestCount = 100
+const updateIterations = 100
 
 const storage = new SimpleStorage()
 const testData = require('./randomData.json')
@@ -35,10 +36,12 @@ for (let i = 0; i < iterations; i++) {
 perfEnd(`Total nearest querying time:`, result.length)
 
 perfStart(`Updating ${count} rectangles...`)
-testData.forEach((item) => {
-  const newRect = generateRandomRect()
-  storage.update(item.id, newRect)
-})
+for (let i = 0; i < updateIterations; i++) {
+  testData.forEach((item) => {
+    const newRect = generateRandomRect()
+    storage.update(item.id, newRect)
+  })
+}
 perfEnd(`Total update time:`)
 
 perfStart(`Deleting ${count} rectangles...`)

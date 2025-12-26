@@ -9,6 +9,7 @@ import { Config, defaultConfig } from './config'
 import { UI } from './ui'
 
 export class ConveyLife implements Particle {
+  static type = 'oop' as const
   private static _config = defaultConfig
 
   static get config() {

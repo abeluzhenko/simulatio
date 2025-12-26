@@ -1,4 +1,4 @@
-import { MyQTStorage } from '../MyQTStorage'
+import { MyQTStorage } from '../MyQTStorageExp'
 import {
   generateRandomRect,
   generateRandomPoint,

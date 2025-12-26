@@ -10,6 +10,7 @@ import { createColor } from '../../math/Color'
 import { Line } from '../../render/Graphics'
 
 export class Polygons implements Particle {
+  static type = 'oop' as const
   private static _config = defaultConfig
 
   static get config() {
