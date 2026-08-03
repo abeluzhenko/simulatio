@@ -1,6 +1,13 @@
 import { Rect } from '../math/Rect'
 import { Storage, ItemId } from '../storage/Storage'
 
+/**
+ * Target frame time for physics calculations at 60 FPS.
+ * Physics was originally tuned for 60 FPS, so we use this as the baseline
+ * for dt scaling to maintain framerate-independent behavior.
+ */
+export const PHYSICS_TARGET_DT = 1000 / 60 // 16.67ms
+
 export type Item = {
   readonly id: ItemId
   readonly rect: Rect

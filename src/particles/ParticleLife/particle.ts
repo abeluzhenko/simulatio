@@ -1,6 +1,6 @@
 import { Random } from '../../math/Random'
 import { ItemId, Storage } from '../../storage/Storage'
-import { World, ItemFactory } from '../../simulation/common'
+import { World, ItemFactory, PHYSICS_TARGET_DT } from '../../simulation/common'
 import { Particle, createGraphics } from '../Particle'
 import { Vector2, distance } from '../../math/Vector2'
 import { Rect } from '../../math/Rect'
@@ -81,7 +81,10 @@ export class ParticleLife implements Particle {
     }
   }
 
-  update() {
+  update(storage: Storage<ParticleLife>, world: World, dt: number = PHYSICS_TARGET_DT) {
+    // Scale factor: ratio of actual dt to target dt (60 FPS)
+    const scale = dt / PHYSICS_TARGET_DT
+
     const intersecting = this.storage.intersecting(this._forceRect)
     let fx = 0
     let fy = 0
@@ -127,10 +130,16 @@ export class ParticleLife implements Particle {
         ParticleLife._config.gravityForce
     }
 
-    this.velocity.x =
-      (this.velocity.x + fx) * (1.0 - ParticleLife._config.damping)
-    this.velocity.y =
-      (this.velocity.y + fy) * (1.0 - ParticleLife._config.damping)
+    // Apply forces scaled by dt
+    this.velocity.x += fx * scale
+    this.velocity.y += fy * scale
+
+    // Apply damping scaled by dt (exponential for framerate independence)
+    const dampingFactor = Math.pow(1.0 - ParticleLife._config.damping, scale)
+    this.velocity.x *= dampingFactor
+    this.velocity.y *= dampingFactor
+
+    // Update position (velocity already accounts for scaled time)
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
 

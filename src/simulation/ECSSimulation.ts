@@ -13,6 +13,7 @@ type ECSSimulationConfig = {
   storage: Storage<any>
   feature: Feature
   featureContext: any
+  multiStepPhysics?: boolean
 }
 
 /**
@@ -31,11 +32,13 @@ export class ECSSimulation {
   private frameTime: number
   private population = 0
   private entities: Entity[] = []
+  private multiStepPhysics: boolean
 
   constructor(config: ECSSimulationConfig) {
     this.worldBounds = config.worldBounds
     this.world = new World()
     this.featureManager = new FeatureManager(this.world)
+    this.multiStepPhysics = config.multiStepPhysics ?? false
 
     // Create and register spatial system (core infrastructure)
     this.spatialSystem = new SpatialSystem(this.world, config.storage)
@@ -105,16 +108,33 @@ export class ECSSimulation {
       return
     }
 
-    // Flush any pending entity/component operations
-    this.world.flush()
+    if (this.multiStepPhysics) {
+      // Fixed timestep mode: Run physics multiple times if needed
+      while (this.deltaTime >= this.frameTime) {
+        // Flush any pending entity/component operations
+        this.world.flush()
 
-    // Update all systems via feature manager
-    this.featureManager.update(dt)
+        // Update all systems via feature manager with fixed timestep
+        this.featureManager.update(this.frameTime)
 
-    // Flush again after system updates
-    this.world.flush()
+        // Flush again after system updates
+        this.world.flush()
 
-    this.deltaTime = 0
+        this.deltaTime -= this.frameTime
+      }
+    } else {
+      // Variable timestep mode: Run physics once, scaled by actual dt
+      // Flush any pending entity/component operations
+      this.world.flush()
+
+      // Update all systems via feature manager with actual dt
+      this.featureManager.update(this.deltaTime)
+
+      // Flush again after system updates
+      this.world.flush()
+
+      this.deltaTime = 0
+    }
   }
 
   /**

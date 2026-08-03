@@ -19,6 +19,7 @@ export type GeneralConfig = {
   speed: number
   showStats: boolean
   showConfig: boolean
+  multiStepPhysics: boolean
 }
 
 export type SimulationFC<T = unknown> = FC<{
@@ -62,6 +63,9 @@ export const UI: FC<Props> = ({ general, simulation }) => {
     general.debug.find((d) => d.id === general.default.debug)!,
   )
   const [showStats, setShowStats] = useState(general.default.showStats)
+  const [multiStepPhysics, setMultiStepPhysics] = useState(
+    general.default.multiStepPhysics,
+  )
 
   const handleRenderChange = useCallback(
     (value: Item) => {
@@ -99,8 +103,9 @@ export const UI: FC<Props> = ({ general, simulation }) => {
       speed,
       showStats,
       showConfig: opened,
+      multiStepPhysics,
     })
-  }, [speed, preset, storage, render, debug, showStats, opened])
+  }, [speed, preset, storage, render, debug, showStats, opened, multiStepPhysics])
 
   return (
     <div className={cx('UI__sidebar', { 'UI__sidebar--opened': opened })}>
@@ -152,6 +157,10 @@ export const UI: FC<Props> = ({ general, simulation }) => {
           <div className="UI__option">
             <span className="Option__title">Show stats</span>
             <Switch value={showStats} onChange={setShowStats} />
+          </div>
+          <div className="UI__option">
+            <span className="Option__title">Multi-step physics</span>
+            <Switch value={multiStepPhysics} onChange={setMultiStepPhysics} />
           </div>
         </div>
         <Simulation

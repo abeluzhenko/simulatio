@@ -146,6 +146,7 @@ const currentConfig = loadConfig<GeneralConfig>('general', {
   speed: 1,
   showStats: true,
   showConfig: true,
+  multiStepPhysics: false,
 })
 
 const saveConfig = debounce(function saveConfig<T>(key: string, config: T) {
@@ -229,6 +230,7 @@ function setup(config: {
       featureContext: {
         config: preset.config,
       },
+      multiStepPhysics: currentConfig.multiStepPhysics,
     })
 
     const renderAdapter = new ECSRenderAdapter(
@@ -286,6 +288,7 @@ function setup(config: {
         maxFPS: SIMULATION_FPS,
         speed: currentConfig.speed,
         factory: preset.create,
+        multiStepPhysics: currentConfig.multiStepPhysics,
       },
     )
   }
